@@ -19,6 +19,9 @@ Supports Parallel execution and is thread safe.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/sooraj171/TestAutomation</RepositoryUrl>
     <PackageIcon>test - Copy11.png</PackageIcon>
     <PackageIconUrl />
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.1</AssemblyVersion>
+    <FileVersion>1.0.1.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
