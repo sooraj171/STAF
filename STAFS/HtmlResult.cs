@@ -10,7 +10,7 @@ namespace STAF.CF
         {
             DateTime now = DateTime.Now;
             strFileName = RelativePath + "\\" + strFileName + ".html";
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFileName, FileMode.Create, FileAccess.Write));
+            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
             if (streamWriter == null)
                 return;
             streamWriter.WriteLine("<html>");
@@ -51,7 +51,7 @@ namespace STAF.CF
 
         public static void TC_ResultCreation(IWebDriver driver, string strFilename, string strModuleName, string strDesc, string strResult, string strLinkFile)
         {
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write));
+            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
             int num1 = 0;
             if (strResult == "")
                 strResult = "Not Executed";
@@ -94,7 +94,7 @@ namespace STAF.CF
 
         public static void TC_ResultCreation(string strFilename, string strModuleName, string strDesc, string strResult, string strLinkFile)
         {
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write));
+            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
             int num1 = 0;
             if (strResult == "")
                 strResult = "Not Executed";
