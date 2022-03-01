@@ -61,6 +61,61 @@ namespace STAF.CF
             }
             return _currElmParan;
         }
+
+        private IWebElement _currElmPara;
+        /// <summary>
+        /// Find An Element with wait by Passing By Expression and passing Element report string
+        /// </summary>
+        /// <param name="parentElement"></param>
+        /// <param name="Expression"></param>
+        /// <param name="strObjectDetails"></param>
+        /// <returns></returns>
+        public IWebElement FindAppElement(IWebElement parentElement, By Expression, string strObjectDetails)
+        {
+            try
+            {
+                _currElmPara = waitforelement(parentElement, Expression);
+                ReportResult.ReportResultPass(Driver, context, strObjectDetails, "Element is present");
+            }
+            catch
+            {
+                _currElmPara = null;
+                ReportResult.ReportResultFail(Driver, context, strObjectDetails, "Element is not present");
+            }
+            return _currElmPara;
+        }
+
+        private IWebElement waitforelement(IWebElement parentElement, By by)
+        {
+            int cnt = 10 * 5;
+            for (int i = 0; i < cnt; i++)
+            {
+                System.Threading.Thread.Sleep(200);
+                if (ElementExists(parentElement, by))
+                {
+                    return parentElement.FindElement(by);
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            return null;
+        }
+
+        private bool ElementExists(IWebElement parentElement, By by)
+        {
+            try
+            {
+                parentElement.FindElement(by);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 
 }
