@@ -9,13 +9,14 @@ using OpenQA.Selenium.Support.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace STAF.CF
 {
     public class CommonAction
     {
         public static IWebDriver driver;
-        
+
         // Enter mailfrom mailto mailSubject mailBody as html and Attachmentpath if available: Sooraj
         public static void SendEmail(string mailFrom, string mailTo, string mSubject, string mhtmlBody, string mAttachmentPath)
         {
@@ -145,7 +146,7 @@ namespace STAF.CF
                 resultFile = currTestName.TestDir + "\\" + currTestName.TestName + ".html";
                 Environment.SetEnvironmentVariable(currTestName.TestName, resultFile);
                 Environment.SetEnvironmentVariable("failFlag", "no");
-                HtmlResult.TC_ResultStartTime("Google" ,  currTestName.TestName, currTestName.TestDir);
+                HtmlResult.TC_ResultStartTime("Google", currTestName.TestName, currTestName.TestDir);
                 //System.IO.File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", currTestName.TestDir + @"\ResultTemplate.html");
             }
             catch (Exception)
@@ -158,7 +159,7 @@ namespace STAF.CF
         public static void setCleanUpValues(string currresultFile, TestContext currTestContext, string totTime)
         {
             string currTestName = currTestContext.TestName;
-                    
+
             HtmlResult.TC_EndTime(currresultFile);
             currTestContext.AddResultFile(currresultFile);
             //StreamWriter writer;
@@ -215,9 +216,9 @@ namespace STAF.CF
             }
             Environment.SetEnvironmentVariable("resultbodyfinal", resBody.ToString());
         }
+        
+
     }
-
-
 
     public static class WebDriverExtensions
     {
@@ -310,8 +311,6 @@ namespace STAF.CF
             return true;
         }
 
-
-
         public static bool WaitForElementDisapper(IWebDriver driver, By element, int timeoutInSeconds)
         {
             try
@@ -357,7 +356,42 @@ namespace STAF.CF
             }
         }
 
-        
+        /// <summary>
+        /// Wait for browser ready state and Jquery Ready State
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <returns>true</returns>
+        public static bool WaitForDocumentReady(this IWebDriver driver)
+        {
+            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+            try
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromMilliseconds(10));
+
+                //int cnt = 0;
+                bool retFlag = false;
+                if ((bool)jse.ExecuteScript("return window.jQuery != undefined"))
+                {
+
+                    wait.Until(d => (bool)jse.ExecuteScript("return jQuery.active == 0"));
+
+                    wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
+                    retFlag = true;
+                }
+                else
+                {
+                    wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
+                    retFlag = true;
+                }
+
+                return retFlag;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
     }
 
 
