@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
 using System;
 using System.IO;
 
@@ -146,4 +147,143 @@ namespace STAF.CF
         }
     }
 
+    public static class ReportElement
+    {
+        /// <summary>
+        /// Verify Element is not null(Exists) and Report status to HTML result.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="Driver"></param>
+        /// <param name="context"></param>
+        /// <param name="testName"></param>
+        /// <param name="desc"></param>
+        /// <param name="ProdceedFlag">if false it will stop test execution. Deafult is true</param>
+        public static void ReportElementExists(this IWebElement element, IWebDriver Driver, TestContext context, string testName, string desc, bool ProdceedFlag = true)
+        {
+            try
+            {
+
+                if (element != null)
+                {
+                    ReportResult.ReportResultPass(Driver, context, testName, desc + " true");
+                }
+                else
+                {
+                    if (ProdceedFlag)
+                    {
+                        ReportResult.ReportResultFail(Driver, context, testName, desc + " false");
+                    }
+                    else
+                    {
+                        Assert.Fail();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ReportResult.ReportResultFail(Driver, context, testName, desc + " false");
+                if (ProdceedFlag == false)
+                {
+                    Assert.Fail(testName + " : " + desc + " false");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verify Element is Displayed and Report status to HTML result.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="Driver"></param>
+        /// <param name="context"></param>
+        /// <param name="testName"></param>
+        /// <param name="desc"></param>
+        /// <param name="ProdceedFlag"></param>
+        public static void ReportElementIsDisplayed(this IWebElement element, IWebDriver Driver, TestContext context, string testName, string desc, bool ProdceedFlag = true)
+        {
+            try
+            {
+
+                if (element.Displayed)
+                {
+                    ReportResult.ReportResultPass(Driver, context, testName, desc + " true");
+                }
+                else
+                {
+                    if (ProdceedFlag)
+                    {
+                        ReportResult.ReportResultFail(Driver, context, testName, desc + " false");
+                    }
+                    else
+                    {
+                        Assert.Fail();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ReportResult.ReportResultFail(Driver, context, testName, desc + " false");
+                if (ProdceedFlag == false)
+                {
+                    Assert.Fail(testName + " : " + desc + " false");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verify Element is Enabled and Report status to HTML result.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="Driver"></param>
+        /// <param name="context"></param>
+        /// <param name="testName"></param>
+        /// <param name="desc"></param>
+        /// <param name="ProdceedFlag"></param>
+        public static void ReportElementIsEnabled(this IWebElement element, IWebDriver Driver, TestContext context, string testName, string desc, bool ProdceedFlag = true)
+        {
+            try
+            {
+
+                if (element.Enabled)
+                {
+                    ReportResult.ReportResultPass(Driver, context, testName, desc + " true");
+                }
+                else
+                {
+                    if (ProdceedFlag)
+                    {
+                        ReportResult.ReportResultFail(Driver, context, testName, desc + " false");
+                    }
+                    else
+                    {
+                        Assert.Fail();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ReportResult.ReportResultFail(Driver, context, testName, desc + " false");
+                if (ProdceedFlag == false)
+                {
+                    Assert.Fail(testName + " : " + desc + " false");
+                }
+            }
+        }
+
+        public static IWebDriver GetWebDriverFromElement(IWebElement element)
+        {
+            IWebDriver driver = null;
+
+            if (element.GetType().ToString() == "OpenQA.Selenium.Support.PageObjects.WebElementProxy")
+            {
+                driver = ((IWrapsDriver)element
+                                 .GetType().GetProperty("WrappedElement")
+                                 .GetValue(element, null)).WrappedDriver;
+            }
+            else
+            {
+                driver = ((IWrapsDriver)element).WrappedDriver;
+            }
+            return driver;
+        }
+    }
 }
