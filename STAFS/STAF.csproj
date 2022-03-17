@@ -15,13 +15,15 @@
     <PackageTags>Selenium, Framework, API, UI Tests, API Tests</PackageTags>
     <PackageReleaseNotes>UI and API test framework for Selenium.
 Supports Chrome, Edge &amp; Remote Drivers.
-Supports Parallel execution and is thread safe.</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/sooraj171/TestAutomation</RepositoryUrl>
+Supports Parallel execution and is thread safe.
+Install STAFTemplate Test automation framework from Microsoft Market place. (From VS2019 -&gt; Extension -&gt; Manage Extension -&gt; Online Templates -&gt; Search "STAFTemplate"</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/sooraj171</RepositoryUrl>
     <PackageIcon>test - Copy11.png</PackageIcon>
     <PackageIconUrl />
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.1</Version>
+    <AssemblyVersion>2.0.0.1</AssemblyVersion>
+    <FileVersion>2.0.0.1</FileVersion>
+    <RepositoryType />
   </PropertyGroup>
 
   <ItemGroup>
