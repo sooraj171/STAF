@@ -1,9 +1,9 @@
-### About:  
+## **About:**  
 
-STAF stands for Simple Test Automation quick start.
+STAF stands for Simple Test Automation Framework.
 STAF.UI.API nuget for Page Object Model implementation of Selenium Framework.
 
-### What it has
+## **What it has**
 
 - STAF is a test automation framework for c# projects using selenium.
 - STAF helps to automate API and UI Tests using REST and Selenium.
@@ -13,7 +13,7 @@ STAF.UI.API nuget for Page Object Model implementation of Selenium Framework.
 - STAF framework is maintained by https://github.com/sooraj171
 
 
-### How to implement
+## **How to implement**
 
 From your Visual Studio IDE Navigate to file menu:
 - Extension -> Manage Extension -> Online Templates -> Search "STAFTemplate".
@@ -25,7 +25,7 @@ From your Visual Studio IDE Navigate to file menu:
 - A sample test will get executed.
 
  
-### License:  
+## **License:**  
      MIT
 
 
