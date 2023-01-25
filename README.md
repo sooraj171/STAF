@@ -24,7 +24,18 @@ From your Visual Studio IDE Navigate to file menu:
 - From Test Explorer, select the test and Click run.
 - A sample test will get executed.
 
- 
+## **How to Override the driver and driver options**
+
+To override BrowserOptions use SetChromeOptions / SetEdgeOptions
+    Usage:
+        protected override ChromeOptions SetChromeOptions()
+        { return ChromeOptions;}
+
+To override BrowserDriver
+    Usage:
+        public override IWebDriver GetBrowserDriverObject("Chrome", "", false)
+        { return WebDriver;}
+
 ## **License:**  
      MIT
 

@@ -21,56 +21,56 @@ namespace STAF.CF
             driver = new ChromeDriver(driverPath, options);
             return driver;
         }
-
-        public IWebDriver BrowserDriverObject(string brwType, string driverPath="")
+        /// <summary>
+        /// Getting the Web driver object for the test run
+        /// </summary>
+        /// <param name="brwType">Which browser you want to use Chrome/Edge</param>
+        /// <param name="driverPath">Driver Path if running locally; Remote Hub Url if using Hub</param>
+        /// <param name="isRemote">To set thre remote driver for Hub set it to true; default is false</param>
+        /// <returns></returns>
+        public virtual IWebDriver GetBrowserDriverObject(string brwType, string driverPath="", bool isRemote = false)
         {
             driverPath = driverPath.Trim() == "" ? AppDomain.CurrentDomain.BaseDirectory : driverPath;
-            driver = GetWebDriver(brwType,driverPath, false);
+            driver = GetWebDriver(brwType,driverPath, isRemote);
             return driver;
         }
 
-        public IWebDriver BrowserDriverObject(string brwType, bool isRemote=false, string driverPath = "")
-        {
-            driverPath = driverPath.Trim() == "" ? AppDomain.CurrentDomain.BaseDirectory : driverPath;
-            driver = GetWebDriver(brwType, driverPath,isRemote);
-            return driver;
-        }
 
-        public IWebDriver GetWebDriver(string brwType, string driverPath, bool isRemote)
+        private IWebDriver GetWebDriver(string brwType, string driverPath, bool isRemote)
         {
             switch (brwType.ToLower())
             {
                 case "chrome":
                     if (isRemote)
                     {
-                        driver = new RemoteWebDriver(new Uri(driverPath), GetChromeOptions()); 
+                        driver = new RemoteWebDriver(new Uri(driverPath), SetChromeOptions()); 
                     }
-                    else driver = new ChromeDriver(driverPath, GetChromeOptions());
+                    else driver = new ChromeDriver(driverPath, SetChromeOptions());
                     break;
 
                 case "edge":
                     if (isRemote)
                     {
-                        driver = new RemoteWebDriver(new Uri(driverPath), GetEdgeOptions());
+                        driver = new RemoteWebDriver(new Uri(driverPath), SetEdgeOptions());
                     }
-                    else driver = new EdgeDriver(driverPath, GetEdgeOptions());
+                    else driver = new EdgeDriver(driverPath, SetEdgeOptions());
                     break;
 
                 default:
-                    driver = new ChromeDriver(driverPath, GetChromeOptions());
+                    driver = new ChromeDriver(driverPath, SetChromeOptions());
                     break;
 
             }
             return driver;
         }
 
-        private ChromeOptions GetChromeOptions()
+        protected virtual ChromeOptions SetChromeOptions()
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArguments("start-maximized");
             return options;
         }
-        private EdgeOptions GetEdgeOptions()
+        protected virtual EdgeOptions SetEdgeOptions()
         {
             EdgeOptions options = new EdgeOptions();
             options.AddArguments("start-maximized");

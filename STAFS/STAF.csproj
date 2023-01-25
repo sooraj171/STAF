@@ -29,6 +29,10 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="test - Copy11.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="..\README.md">
       <Pack>True</Pack>

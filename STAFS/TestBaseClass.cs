@@ -9,7 +9,7 @@ using System.Text;
 namespace STAF.CF
 {
     [TestClass]
-    public class TestBaseClass
+    public class TestBaseClass: BrowserDriver
     {
         protected IWebDriver driver;
 
@@ -33,7 +33,7 @@ namespace STAF.CF
             currResultFile = CommonAction.setStartUpValues(TestContext);
             string brwType = TestContext.Properties["browser"].ToString(); 
             string driverPath = TestContext.Properties["driverPath"].ToString();
-            driver = new BrowserDriver().BrowserDriverObject(brwType, driverPath);
+            driver = GetBrowserDriverObject(brwType, driverPath);
         }
 
         [TestCleanup]
