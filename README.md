@@ -1,7 +1,7 @@
 ## **About:**  
 
-STAF stands for Simple Test Automation Framework.
-STAF.UI.API nuget for Page Object Model implementation of Selenium Framework.
+- STAF stands for Simple Test Automation Framework.
+- STAF.UI.API nuget for Page Object Model implementation of Selenium Framework.
 
 ## **What it has**
 
