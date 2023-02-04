@@ -27,13 +27,17 @@ namespace STAF.CF.Excel
 
         }
 
-        public XLWorkbook GetExcelWorkbook(string file)
+        
+        public XLWorkbook GetExcelWorkbook(string file, FileAccess fileAccessType= FileAccess.Read)
         {
-            using (var stream = File.Open(file, FileMode.Open, FileAccess.Read))
+            
+            using (var stream = File.Open(file, FileMode.Open, fileAccessType))
             {
                 return new XLWorkbook(stream);
             }
         }
+
+
 
         private ExcelCompareStatus CompareExcelWorkbooks(XLWorkbook workbook1, XLWorkbook workbook2, int SheetIndexFIle1 = 1, int SheetIndexFIle2 = 1)
         {
@@ -42,16 +46,26 @@ namespace STAF.CF.Excel
 
             int Sheet1Cnt = GetExcelRowCount(sheet1);
             int Sheet2Cnt = GetExcelRowCount(sheet2);
-            List<string> ListOfDiff = null;
 
-            if (Sheet1Cnt == Sheet2Cnt)
+            int Sheet1ColCnt = GetExcelColumnCount(sheet1);
+            int Sheet2ColCnt = GetExcelColumnCount(sheet2);
+            List<string> ListOfDiff = new();
+
+            if (Sheet1Cnt == Sheet2Cnt && Sheet1ColCnt == Sheet2ColCnt)
             {
                 // Compare the cells of the two sheets
                 ListOfDiff = CompareExcelSheets(sheet1, sheet2);
             }
             else
             {
+                if (Sheet1Cnt != Sheet2Cnt)
+                { 
                 ListOfDiff.Add("Row counts are not matching between two sheets.");
+                }
+                if (Sheet1ColCnt != Sheet2ColCnt)
+                {
+                    ListOfDiff.Add("Column counts are not matching between two sheets.");
+                }
             }
 
             ExcelCompareStatus compareStatus = new();

@@ -14,38 +14,7 @@ namespace STAF.CF
             StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
             if (streamWriter == null)
                 return;
-            streamWriter.WriteLine("<html>");
-            streamWriter.WriteLine("<head>");
-            streamWriter.WriteLine("<meta http-equiv=Content-Language+content=en-us>");
-            streamWriter.WriteLine("<meta http-equiv=Content-Typecontent=text/html; charset=windows-1252>");
-            streamWriter.WriteLine("<title>" + strProject + "</title>");
-            streamWriter.WriteLine("</head>");
-            streamWriter.WriteLine("<body>");
-            streamWriter.WriteLine("<blockquote>");
-            streamWriter.WriteLine("<table border=2 bordercolor=#000000 id=table1 width=844 height=31 bordercolorlight=#000000>");
-            streamWriter.WriteLine("<tr>");
-            streamWriter.WriteLine("<td COLSPAN = 5 bgcolor = #FFF8C6>");
-            streamWriter.WriteLine("<p align=center><font color=#000080 size=4 face= \"Copperplate Gothic Bold\">&nbsp; Automation Script - " + strProject + "</font><font face= \"Copperplate Gothic Bold\"></font> </p>");
-            streamWriter.WriteLine("</td>");
-            streamWriter.WriteLine("</tr>");
-            streamWriter.WriteLine("<tr>");
-            streamWriter.WriteLine("<td COLSPAN = 5 bgcolor = #FFF8C6>");
-            streamWriter.WriteLine("<p align=justify><b><font color=#000080 size=2 face= Verdana>&nbsp;START TIME:&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");
-            streamWriter.WriteLine("</td>");
-            streamWriter.WriteLine("</tr>");
-            streamWriter.WriteLine("<tr bgcolor=#8A4117>");
-            streamWriter.WriteLine("<td width=200");
-            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Module Name</b></td>");
-            streamWriter.WriteLine("<td width=400>");
-            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Description</b></td>");
-            streamWriter.WriteLine("<td width=200>");
-            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Actual Result</b></td>");
-            streamWriter.WriteLine("<td width=200>");
-            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Execution Status</b></td>");
-            streamWriter.WriteLine("</tr>");
-            streamWriter.WriteLine("</blockquote>");
-            streamWriter.WriteLine("</body>");
-            streamWriter.WriteLine("</html>");
+            streamWriter = BuildHtmlString(streamWriter, strProject);
             streamWriter.Flush();
             streamWriter.Close();
         }
@@ -59,7 +28,7 @@ namespace STAF.CF
             if (strModuleName != "")
             {
                 int num2 = num1 + 1;
-                streamWriter.WriteLine("<tr bgcolor = #FDEEF4 >");
+                streamWriter.WriteLine("<tr class='result' bgcolor = #80D8FF >");
                 streamWriter.WriteLine("<td width=200>");
                 streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strModuleName + "</td>");
                 streamWriter.WriteLine("<td width=400nowrap>");
@@ -102,7 +71,7 @@ namespace STAF.CF
             if (strModuleName != "")
             {
                 int num2 = num1 + 1;
-                streamWriter.WriteLine("<tr bgcolor = #FDEEF4 >");
+                streamWriter.WriteLine("<tr class='result' bgcolor = #80D8FF >");
                 streamWriter.WriteLine("<td width=200>");
                 streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strModuleName + "</td>");
                 streamWriter.WriteLine("<td width=400nowrap>");
@@ -135,8 +104,8 @@ namespace STAF.CF
         {
             StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write));
             streamWriter.WriteLine("<tr>");
-            streamWriter.WriteLine("<td COLSPAN = 5 bgcolor = #FFF8C6>");
-            streamWriter.WriteLine("<p align=justify><b><font color=#000080 size=2 face= Verdana>&nbsp;END TIME :&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");
+            streamWriter.WriteLine("<td class='headBk' COLSPAN = 4>");
+            streamWriter.WriteLine("<p align=justify><b><font color=white size=2 face= Verdana>&nbsp;END TIME :&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");
             streamWriter.WriteLine("</td>");
             streamWriter.WriteLine("</tr>");
             streamWriter.WriteLine("</table>");
@@ -144,6 +113,46 @@ namespace STAF.CF
             streamWriter.WriteLine("</html>");
             streamWriter.Flush();
             streamWriter.Close();
+        }
+
+        private static StreamWriter BuildHtmlString(StreamWriter streamWriter, string strProject)
+        {
+            streamWriter.WriteLine("<html>");
+            streamWriter.WriteLine("<head>");
+            streamWriter.WriteLine("<meta http-equiv=Content-Language+content=en-us>");
+            streamWriter.WriteLine("<meta http-equiv=Content-Typecontent=text/html; charset=windows-1252>");
+            streamWriter.WriteLine("<title>" + strProject + "</title>");
+            streamWriter.WriteLine("<style>");
+            streamWriter.WriteLine(".result:hover { background-color: #FFF8C6; font-weight: bold;}");
+            streamWriter.WriteLine(".headBk { background-color: #2962FF;} </style>");
+            streamWriter.WriteLine("</head>");
+            streamWriter.WriteLine("<body>");
+            streamWriter.WriteLine("<blockquote>");
+            streamWriter.WriteLine("<table border=2 bordercolor=#000000 id=table1 width=844 height=31 bordercolorlight=#000000");
+            streamWriter.WriteLine("<tr>");
+            streamWriter.WriteLine("<td COLSPAN = 4 class = 'headBk'>");
+            streamWriter.WriteLine("<p align=center><font color=yellow size=4 face= \"Copperplate Gothic Bold\">&nbsp; Automation Script - " + strProject + "</font><font face= \"Copperplate Gothic Bold\"></font> </p>");
+            streamWriter.WriteLine("</td>");
+            streamWriter.WriteLine("</tr>");
+            streamWriter.WriteLine("<tr>");
+            streamWriter.WriteLine("<td COLSPAN = 4  class = 'headBk'>");
+            streamWriter.WriteLine("<p align=justify><b><font color=white size=2 face= Verdana>&nbsp;START TIME:&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");
+            streamWriter.WriteLine("</td>");
+            streamWriter.WriteLine("</tr>");
+            streamWriter.WriteLine("<tr bgcolor=#448AFF>");
+            streamWriter.WriteLine("<td width=200");
+            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Module Name</b></td>");
+            streamWriter.WriteLine("<td width=400>");
+            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Description</b></td>");
+            streamWriter.WriteLine("<td width=200>");
+            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Actual Result</b></td>");
+            streamWriter.WriteLine("<td width=200>");
+            streamWriter.WriteLine("<p align=center><b><font color = white face=Arial Narrow size=2>Execution Status</b></td>");
+            streamWriter.WriteLine("</tr>");
+            streamWriter.WriteLine("</blockquote>");
+            streamWriter.WriteLine("</body>");
+            streamWriter.WriteLine("</html>");
+            return streamWriter;
         }
     }
 
