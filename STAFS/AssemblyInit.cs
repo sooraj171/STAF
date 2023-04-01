@@ -11,13 +11,16 @@ namespace STAF.CF
     public class AssemblyInit
     {
         private static string resTestDir = "";
+        //private static string SentEmail = "false";
+        //private static string MailTo = "";
+        //private static string Mailfrom = "donotreply@test.com";
 
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext tc)
         {
             try
             {
-                Console.WriteLine("Before all tests");
+                //Console.WriteLine("Before all tests");
                 var driverProcess = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
 
                 foreach (var process in driverProcess)
@@ -29,6 +32,8 @@ namespace STAF.CF
                 MakeAfile(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html");
                 Environment.SetEnvironmentVariable("OverallFailFlag", "No");
                 Environment.SetEnvironmentVariable("resultbodyfinal", "");
+                //SentEmail=tc.Properties["SentEmail"]==null?"": tc.Properties["SentEmail"].ToString().ToLower();
+
             }
             catch { }
         }
@@ -48,7 +53,14 @@ namespace STAF.CF
                 writer.Close();
 
                 File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", Directory.GetParent(resTestDir) + @"\ResultTemplateFinal.html",true);
-                //CommonAction.SendEmail("sooraj171@hotmail.com", "sooraj171@gmail.com", "Auto Test Result - Google", Environment.GetEnvironmentVariable("resultbody"), resTestDir + @"\ResultTemplateFinal.html");
+                //if (SentEmail == "true")
+                //{
+                //    try
+                //    {
+                //        CommonAction.SendEmail(Mailfrom, MailTo, "Automation Test Result", Environment.GetEnvironmentVariable("resultbody"), resTestDir + @"\ResultTemplateFinal.html");
+                //    }
+                //    catch { Console.WriteLine("Error in sending email."); }
+                //}
                 if (Environment.GetEnvironmentVariable("OverallFailFlag").ToLower() == "yes")
                 {
                     Assert.Fail("Some Test Cases failed in execution");

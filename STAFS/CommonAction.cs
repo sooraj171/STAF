@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Net;
 
 namespace STAF.CF
 {
@@ -52,10 +53,7 @@ namespace STAF.CF
                 }
             }
 
-            SmtpClient MySmtpClient = new SmtpClient("Smtp.live.com");
-            MySmtpClient.Port = 587;
-            MySmtpClient.EnableSsl = true;
-            //MySmtpClient.Credentials = CredentialCache.DefaultCredentials;
+            SmtpClient MySmtpClient= SetMailServer("", 1, true);
 
             try
             {
@@ -216,7 +214,23 @@ namespace STAF.CF
             }
             Environment.SetEnvironmentVariable("resultbodyfinal", resBody.ToString());
         }
+
+        public static SmtpClient SetMailServer(string StrSMTPHost,int SMTPPort,bool UseDefaultCred,string UserName="",string Password="")
+        {
+            SmtpClient smtpClient= new SmtpClient(StrSMTPHost,SMTPPort);
+            smtpClient.EnableSsl = true;
+            if (UseDefaultCred)
+            {
+                smtpClient.UseDefaultCredentials = UseDefaultCred;
+            }
+            else 
+            {
+                smtpClient.Credentials = new NetworkCredential(UserName, Password);
+            }
+            return smtpClient;
+        }
         
+
 
     }
 

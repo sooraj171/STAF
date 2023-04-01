@@ -10,6 +10,7 @@
 - STAF has all base class written so you can inherit and use those.
 - STAF has a good HTML reporting as well for test result viewing.
 - Parallel Execution using native machine threads.
+- Excel Comparison and easy usage.
 - STAF framework is maintained by https://github.com/sooraj171
 
 
@@ -35,6 +36,19 @@ To override BrowserDriver
     Usage:
         public override IWebDriver GetBrowserDriverObject("Chrome", "", false)
         { return WebDriver;}
+
+
+## **How to Use Excel Options**
+    ExcelDriver excel= new ExcelDriver();
+            ExcelCompareStatus res = excel.CompareFiles("\Excel1.xlsx", "\Excel2.xlsx",SheetIndexFile1,SheetIndexFile2);
+            if (res.IsMatching)
+            {
+               return true;
+            }
+            else
+            {
+                return false;
+            }
 
 ## **License:**  
      MIT
