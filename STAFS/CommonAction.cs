@@ -144,7 +144,8 @@ namespace STAF.CF
                 resultFile = currTestName.TestDir + "\\" + currTestName.TestName + ".html";
                 Environment.SetEnvironmentVariable(currTestName.TestName, resultFile);
                 Environment.SetEnvironmentVariable("failFlag", "no");
-                HtmlResult.TC_ResultStartTime("Google", currTestName.TestName, currTestName.TestDir);
+                string StrProject = currTestName.Properties["project"]==null?"TestSteps": "TestSteps:"+ currTestName.Properties["project"].ToString();
+                HtmlResult.TC_ResultStartTime(StrProject, currTestName.TestName, currTestName.TestDir);
                 //System.IO.File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", currTestName.TestDir + @"\ResultTemplate.html");
             }
             catch (Exception)
