@@ -33,6 +33,11 @@
     <Parameter name="driverPath" value="" />
     <Parameter name="url" value="http://www.google.com" />
     <Parameter name="searchText" value="Sooraj Ramachandran" />
+    <Parameter name="useemail" value="false" />
+    <Parameter name="mailto" value="test@test.com" />
+    <Parameter name="mailfrom" value="test@test.com" />
+    <Parameter name="smtphost" value="test@test.com" />
+    <Parameter name="smtpport" value="test@test.com" />
   </TestRunParameters>
 
   <!-- Configuration for loggers -->

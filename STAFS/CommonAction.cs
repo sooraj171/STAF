@@ -9,8 +9,9 @@ using OpenQA.Selenium.Support.UI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Net;
+using SATF;
+using Microsoft.Extensions.Configuration;
 
 namespace STAF.CF
 {
@@ -19,50 +20,52 @@ namespace STAF.CF
         public static IWebDriver driver;
 
         // Enter mailfrom mailto mailSubject mailBody as html and Attachmentpath if available: Sooraj
-        public static void SendEmail(string mailFrom, string mailTo, string mSubject, string mhtmlBody, string mAttachmentPath)
+        public static void SendEmail(string mailFrom, string mailTo, string mSubject, string mhtmlBody, string mAttachmentPath,TestContext context=null)
         {
 
             mailTo = mailTo == null ? "" : mailTo;
-            if (mailTo == "")
+            mailFrom = mailFrom == null ? "" : mailFrom;
+            if (mailTo.Trim() != "" && mailFrom.Trim() != "")
             {
-                mailTo = "sooraj171@hotmail.com";
-                mailFrom = "sooraj171@hotmail.com";
-                mSubject = "Smoke Test";
-            }
-            string[] to = mailTo.Split(';');
+
+                string[] to = mailTo.Split(';');
 
 
-            MailAddress AddressFrom = new MailAddress(mailFrom);
-            MailMessage MyMail = new MailMessage();
-            MyMail.From = AddressFrom;
-            foreach (var mId in to)
-            {
-                MyMail.To.Add(mId);
-            }
-
-            MyMail.IsBodyHtml = true;
-            MyMail.Subject = mSubject;
-            MyMail.Body = mhtmlBody;
-            if (mAttachmentPath.Trim() != "")
-            {
-                string[] attach = mAttachmentPath.Split(';');
-
-                foreach (var att in attach)
+                MailAddress AddressFrom = new MailAddress(mailFrom);
+                MailMessage MyMail = new MailMessage();
+                MyMail.From = AddressFrom;
+                foreach (var mId in to)
                 {
-                    MyMail.Attachments.Add(new Attachment(att));
+                    MyMail.To.Add(mId);
                 }
-            }
 
-            SmtpClient MySmtpClient= SetMailServer("", 1, true);
+                MyMail.IsBodyHtml = true;
+                MyMail.Subject = mSubject;
+                MyMail.Body = mhtmlBody;
+                if (mAttachmentPath.Trim() != "")
+                {
+                    string[] attach = mAttachmentPath.Split(';');
 
-            try
-            {
-                MySmtpClient.Send(MyMail);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception caught in CreateBccTestMessage(): {0}",
-                ex.ToString());
+                    foreach (var att in attach)
+                    {
+                        MyMail.Attachments.Add(new Attachment(att));
+                    }
+                }
+
+                string StrSmtpHost = AppConfig.GetConfig().GetSection("Email:SmtpHost").Value;//context.Properties["smtphost"] == null ? "" : context.Properties["smtphost"].ToString().ToLower();
+                int IntSmtpPort = Convert.ToInt32(AppConfig.GetConfig().GetSection("Email:SmtpPort").Value);//Convert.ToInt32(context.Properties["smtpport"] == null ? 0 : context.Properties["smtpport"].ToString().ToLower());
+                bool boolDefMailCred = Convert.ToBoolean(AppConfig.GetConfig().GetSection("Email:UseDefaultCred").Value);
+                SmtpClient MySmtpClient = SetMailServer(StrSmtpHost, IntSmtpPort, boolDefMailCred);
+
+                try
+                {
+                    MySmtpClient.Send(MyMail);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception caught in Sending Email(): {0}",
+                    ex.ToString());
+                }
             }
 
         }
@@ -218,6 +221,8 @@ namespace STAF.CF
 
         public static SmtpClient SetMailServer(string StrSMTPHost,int SMTPPort,bool UseDefaultCred,string UserName="",string Password="")
         {
+            
+
             SmtpClient smtpClient= new SmtpClient(StrSMTPHost,SMTPPort);
             smtpClient.EnableSsl = true;
             if (UseDefaultCred)
@@ -226,6 +231,8 @@ namespace STAF.CF
             }
             else 
             {
+                UserName = AppConfig.GetConfig().GetSection("Email:Username").Value;
+                Password = AppConfig.GetConfig().GetSection("Email:Password").Value;
                 smtpClient.Credentials = new NetworkCredential(UserName, Password);
             }
             return smtpClient;

@@ -81,6 +81,10 @@ namespace STAF.CF
                     streamWriter.WriteLine("<p align=center><font face=Verdana size=2> As Expected </td>");
                 else if (strResult.ToLower() == "fail")
                     streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not As Expected </td>");
+                else if (strResult.ToLower() == "warning")
+                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Warning </td>");
+                else if (strResult.ToLower() == "info")
+                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Information </td>");
                 else
                     streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not Run</td>");
                 streamWriter.WriteLine("<td height=23width=200>");
@@ -91,6 +95,14 @@ namespace STAF.CF
                     Environment.SetEnvironmentVariable("failFlag", "yes");
                     strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
                     streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
+                }
+                else if (strResult.ToLower() == "warning")
+                {
+                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ff9933>" + strResult + "</font></b></td>");
+                }
+                else if (strResult.ToLower() == "info")
+                {
+                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ffffff>" + strResult + "</font></b></td>");
                 }
                 else
                     streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0888>" + strResult + "</font></b></td>");

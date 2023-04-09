@@ -11,9 +11,10 @@ namespace STAF.CF
     public class AssemblyInit
     {
         private static string resTestDir = "";
-        //private static string SentEmail = "false";
-        //private static string MailTo = "";
-        //private static string Mailfrom = "donotreply@test.com";
+        private static string SentEmail = "false";
+        private static string MailTo = "";
+        private static string MailFrom = "donotreply@test.com";
+        private static TestContext _testContext;
 
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext tc)
@@ -22,7 +23,7 @@ namespace STAF.CF
             {
                 //Console.WriteLine("Before all tests");
                 var driverProcess = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
-
+                _testContext = tc;
                 foreach (var process in driverProcess)
                 {
                     process.Kill();
@@ -32,8 +33,8 @@ namespace STAF.CF
                 MakeAfile(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html");
                 Environment.SetEnvironmentVariable("OverallFailFlag", "No");
                 Environment.SetEnvironmentVariable("resultbodyfinal", "");
-                //SentEmail=tc.Properties["SentEmail"]==null?"": tc.Properties["SentEmail"].ToString().ToLower();
-
+                SentEmail=tc.Properties["useemail"]==null?"": tc.Properties["useemail"].ToString().ToLower();
+                
             }
             catch { }
         }
@@ -57,7 +58,9 @@ namespace STAF.CF
                 //{
                 //    try
                 //    {
-                //        CommonAction.SendEmail(Mailfrom, MailTo, "Automation Test Result", Environment.GetEnvironmentVariable("resultbody"), resTestDir + @"\ResultTemplateFinal.html");
+                //        MailFrom= _testContext.Properties["mailfrom"] == null ? "" : _testContext.Properties["mailfrom"].ToString().ToLower();
+                //        MailTo = _testContext.Properties["mailto"] == null ? "" : _testContext.Properties["mailto"].ToString().ToLower();
+                //        CommonAction.SendEmail(MailFrom, MailTo, "Automation Test Result", Environment.GetEnvironmentVariable("resultbody"), Directory.GetParent(resTestDir) + @"\ResultTemplateFinal.html",_testContext);
                 //    }
                 //    catch { Console.WriteLine("Error in sending email."); }
                 //}

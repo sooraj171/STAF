@@ -70,5 +70,40 @@ namespace STAF.CF
             //TTPReporter.ReportEvent(result, moduleName, description +" " +exception);
             Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
         }
+
+        public static void ReportResultWarn(TestContext context, string moduleName, string description, string exception = "")
+        {
+            string result = "WARNING";
+
+            if (Environment.GetEnvironmentVariable(context.TestName) != null)
+            {
+                try
+                {
+                    HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+                }
+            }
+            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+        }
+        public static void ReportResultInfo(TestContext context, string moduleName, string description, string exception = "")
+        {
+            string result = "INFO";
+
+            if (Environment.GetEnvironmentVariable(context.TestName) != null)
+            {
+                try
+                {
+                    HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+                }
+            }
+            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+        }
     }
 }
