@@ -37,6 +37,13 @@ To override BrowserDriver
         public override IWebDriver GetBrowserDriverObject("Chrome", "", false)
         { return WebDriver;}
 
+## **How to Use the Reporting options**
+    
+    Usage:
+        ReportResult.ReportResultPass(Driver, context, testName, "Details.");
+        ReportResultAPI.ReportResultPass(TestContext, "ModuleName/FunctionName", "Details");
+    Other Options:  
+        ReportResultFail,ReportResultWarn,ReportResultInfo
 
 ## **How to Use Excel Options**
     ExcelDriver excel= new ExcelDriver();

@@ -51,11 +51,25 @@ namespace STAF.CF
                         MyMail.Attachments.Add(new Attachment(att));
                     }
                 }
+                string StrSmtpHost = "";
+                int IntSmtpPort = 0;
+                bool boolDefMailCred = true;
 
-                string StrSmtpHost = AppConfig.GetConfig().GetSection("Email:SmtpHost").Value;//context.Properties["smtphost"] == null ? "" : context.Properties["smtphost"].ToString().ToLower();
-                int IntSmtpPort = Convert.ToInt32(AppConfig.GetConfig().GetSection("Email:SmtpPort").Value);//Convert.ToInt32(context.Properties["smtpport"] == null ? 0 : context.Properties["smtpport"].ToString().ToLower());
-                bool boolDefMailCred = Convert.ToBoolean(AppConfig.GetConfig().GetSection("Email:UseDefaultCred").Value);
-                SmtpClient MySmtpClient = SetMailServer(StrSmtpHost, IntSmtpPort, boolDefMailCred);
+                if (AppConfig.GetConfig() != null)
+                {
+                     StrSmtpHost = AppConfig.GetConfig().GetSection("Email:SmtpHost").Value;
+                     IntSmtpPort = Convert.ToInt32(AppConfig.GetConfig().GetSection("Email:SmtpPort").Value);
+                     boolDefMailCred = Convert.ToBoolean(AppConfig.GetConfig().GetSection("Email:UseDefaultCred").Value);
+
+                }
+                else 
+                {
+                     StrSmtpHost = context.Properties["smtphost"] == null ? "" : context.Properties["smtphost"].ToString().ToLower();
+                     IntSmtpPort = Convert.ToInt32(context.Properties["smtpport"] == null ? 0 : context.Properties["smtpport"].ToString().ToLower());
+                     boolDefMailCred = true;
+                }
+
+                SmtpClient MySmtpClient = SetMailServer(StrSmtpHost, boolDefMailCred, IntSmtpPort);
 
                 try
                 {
@@ -219,12 +233,14 @@ namespace STAF.CF
             Environment.SetEnvironmentVariable("resultbodyfinal", resBody.ToString());
         }
 
-        public static SmtpClient SetMailServer(string StrSMTPHost,int SMTPPort,bool UseDefaultCred,string UserName="",string Password="")
+        public static SmtpClient SetMailServer(string StrSMTPHost, bool UseDefaultCred, int SMTPPort=0,string UserName="",string Password="")
         {
-            
 
-            SmtpClient smtpClient= new SmtpClient(StrSMTPHost,SMTPPort);
+
+            SmtpClient smtpClient = new SmtpClient(StrSMTPHost);
             smtpClient.EnableSsl = true;
+            if (SMTPPort!=0)
+                smtpClient.Port = SMTPPort;
             if (UseDefaultCred)
             {
                 smtpClient.UseDefaultCredentials = UseDefaultCred;
