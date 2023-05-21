@@ -12,8 +12,8 @@ namespace STAF.CF
     {
         private static string resTestDir = "";
         private static string SentEmail = "false";
-        private static string MailTo = "";
-        private static string MailFrom = "donotreply@test.com";
+        //private static string MailTo = "";
+        //private static string MailFrom = "donotreply@test.com";
         private static TestContext _testContext;
 
         [AssemblyInitialize]
@@ -83,7 +83,7 @@ namespace STAF.CF
 
         private static void MakeAfile(string StrFileName)
         {
-            StreamWriter sw = new StreamWriter((Stream)File.Open(StrFileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
+            StreamWriter sw = new ((Stream)File.Open(StrFileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
 
             sw.WriteLine("<html>");
             sw.WriteLine("<head>");

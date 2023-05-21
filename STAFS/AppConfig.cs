@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace SATF
+namespace STAF
 {
     public static class AppConfig
     {
@@ -9,17 +9,21 @@ namespace SATF
         public static IConfigurationRoot GetConfig()
         {
             IConfigurationRoot configuration = null;
-            string configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-            if (File.Exists(configFilePath))
+            try
             {
-                
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                string configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+                if (File.Exists(configFilePath))
+                {
 
-                configuration = builder.Build();
-                
+                    var builder = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+                    configuration = builder.Build();
+
+                }
             }
+            catch { }
             return configuration;
         }
     }

@@ -10,8 +10,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using SATF;
-using Microsoft.Extensions.Configuration;
 
 namespace STAF.CF
 {
@@ -237,7 +235,7 @@ namespace STAF.CF
         {
 
 
-            SmtpClient smtpClient = new SmtpClient(StrSMTPHost);
+            SmtpClient smtpClient = new (StrSMTPHost);
             smtpClient.EnableSsl = true;
             if (SMTPPort!=0)
                 smtpClient.Port = SMTPPort;
@@ -258,179 +256,179 @@ namespace STAF.CF
 
     }
 
-    public static class WebDriverExtensions
-    {
-        public static IWebDriver CloseAllTabsExceptCurrent(IWebDriver driver)
-        {
-            try
-            {
-                int tabCnt = getTotalTabsCount(driver);
+    //public static class WebDriverExtensions
+    //{
+    //    public static IWebDriver CloseAllTabsExceptCurrent(IWebDriver driver)
+    //    {
+    //        try
+    //        {
+    //            int tabCnt = getTotalTabsCount(driver);
 
-                if (tabCnt > 1)
-                {
-                    var mainWin = driver.CurrentWindowHandle;
+    //            if (tabCnt > 1)
+    //            {
+    //                var mainWin = driver.CurrentWindowHandle;
 
-                    driver.WindowHandles.Where(w => w != mainWin).ToList()
-                        .ForEach(w =>
-                       {
-                           driver.SwitchTo().Window(w);
-                           driver.Close();
-                       });
-                }
-            }
-            catch
-            {
-                //ReportResult.ReportResultFail("CloseAllTabsExceptCurrent", "Failed to Close all open tabs. ");
-            }
-            return driver;
-        }
+    //                driver.WindowHandles.Where(w => w != mainWin).ToList()
+    //                    .ForEach(w =>
+    //                   {
+    //                       driver.SwitchTo().Window(w);
+    //                       driver.Close();
+    //                   });
+    //            }
+    //        }
+    //        catch
+    //        {
+    //            //ReportResult.ReportResultFail("CloseAllTabsExceptCurrent", "Failed to Close all open tabs. ");
+    //        }
+    //        return driver;
+    //    }
 
-        public static int getTotalTabsCount(IWebDriver driver)
-        {
-            int cnt = 0;
+    //    public static int getTotalTabsCount(IWebDriver driver)
+    //    {
+    //        int cnt = 0;
 
-            try
-            {
-                List<string> windowLs = new List<string>(driver.WindowHandles);
-                cnt = windowLs.Count;
-            }
-            catch
-            {
-                //CommonAction.ReportResultFail("getTotalTabsCount", "Failed to get list of all tabs");
-                return 0;
-            }
-            return cnt;
-        }
-        public static IWebElement waitForFindElement(this IWebDriver driver, By by, int timeoutInSeconds)
-        {
-            if (timeoutInSeconds > 0)
-            {
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
-                return wait.Until(drv => drv.FindElement(by));
-            }
-            return driver.FindElement(by);
-        }
+    //        try
+    //        {
+    //            List<string> windowLs = new List<string>(driver.WindowHandles);
+    //            cnt = windowLs.Count;
+    //        }
+    //        catch
+    //        {
+    //            //CommonAction.ReportResultFail("getTotalTabsCount", "Failed to get list of all tabs");
+    //            return 0;
+    //        }
+    //        return cnt;
+    //    }
+    //    public static IWebElement waitForFindElement(this IWebDriver driver, By by, int timeoutInSeconds)
+    //    {
+    //        if (timeoutInSeconds > 0)
+    //        {
+    //            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+    //            return wait.Until(drv => drv.FindElement(by));
+    //        }
+    //        return driver.FindElement(by);
+    //    }
 
-        public static bool waitForElementExist(this IWebDriver driver, IWebElement elmObject, int timeoutInSeconds)
-        {
-            bool res = false;
-            if (timeoutInSeconds > 0)
-            {
-                WebDriverWait wttest = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
-                var tbObj = wttest.Until(d =>
-                {
-                    if (elmObject != null)
-                    {
-                        return true;
-                    }
-                    else { return false; }
-                }
-                  );
-            }
-            return res;
-        }
+    //    public static bool waitForElementExist(this IWebDriver driver, IWebElement elmObject, int timeoutInSeconds)
+    //    {
+    //        bool res = false;
+    //        if (timeoutInSeconds > 0)
+    //        {
+    //            WebDriverWait wttest = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+    //            var tbObj = wttest.Until(d =>
+    //            {
+    //                if (elmObject != null)
+    //                {
+    //                    return true;
+    //                }
+    //                else { return false; }
+    //            }
+    //              );
+    //        }
+    //        return res;
+    //    }
 
-        public static bool waitForElementNotExist(this IWebDriver driver, IWebElement elmObject, int timeoutInSeconds)
-        {
-            if (timeoutInSeconds > 0)
-            {
-                WebDriverWait wttest = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+    //    public static bool waitForElementNotExist(this IWebDriver driver, IWebElement elmObject, int timeoutInSeconds)
+    //    {
+    //        if (timeoutInSeconds > 0)
+    //        {
+    //            WebDriverWait wttest = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
 
-                var tbObj = wttest.Until(d =>
-                {
-                    if (elmObject != null)
-                    {
-                        return true;
-                    }
-                    else { return false; }
-                }
-                  );
-            }
-            return true;
-        }
+    //            var tbObj = wttest.Until(d =>
+    //            {
+    //                if (elmObject != null)
+    //                {
+    //                    return true;
+    //                }
+    //                else { return false; }
+    //            }
+    //              );
+    //        }
+    //        return true;
+    //    }
 
-        public static bool WaitForElementDisapper(IWebDriver driver, By element, int timeoutInSeconds)
-        {
-            try
-            {
-                int tempTO = 0;
-                string flgFind = "n";
-                while (timeoutInSeconds >= tempTO)
-                {
-                    try
-                    {
-                        //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(3));
-                        //IWebElement temp = wait.Until<IWebElement>(d => d.FindElement(By.XPath("//div[@class='subline inc']")));
-                        IWebElement temp = driver.FindElement(element);
+    //    public static bool WaitForElementDisapper(IWebDriver driver, By element, int timeoutInSeconds)
+    //    {
+    //        try
+    //        {
+    //            int tempTO = 0;
+    //            string flgFind = "n";
+    //            while (timeoutInSeconds >= tempTO)
+    //            {
+    //                try
+    //                {
+    //                    //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(3));
+    //                    //IWebElement temp = wait.Until<IWebElement>(d => d.FindElement(By.XPath("//div[@class='subline inc']")));
+    //                    IWebElement temp = driver.FindElement(element);
 
-                        if (temp != null)
-                        {
-                            tempTO = tempTO + 1;
-                        }
-                    }
-                    catch (NoSuchElementException)
-                    {
-                        flgFind = "y";
-                        return true;
-                    }
-                    catch (StaleElementReferenceException)
-                    {
-                        flgFind = "y";
-                        return true;
-                    }
-                }
+    //                    if (temp != null)
+    //                    {
+    //                        tempTO = tempTO + 1;
+    //                    }
+    //                }
+    //                catch (NoSuchElementException)
+    //                {
+    //                    flgFind = "y";
+    //                    return true;
+    //                }
+    //                catch (StaleElementReferenceException)
+    //                {
+    //                    flgFind = "y";
+    //                    return true;
+    //                }
+    //            }
 
-                if (timeoutInSeconds == tempTO && flgFind == "n")
-                {
-                    return false;
-                }
+    //            if (timeoutInSeconds == tempTO && flgFind == "n")
+    //            {
+    //                return false;
+    //            }
 
-                return false;
+    //            return false;
 
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+    //        }
+    //        catch (Exception)
+    //        {
+    //            return false;
+    //        }
+    //    }
 
-        /// <summary>
-        /// Wait for browser ready state and Jquery Ready State
-        /// </summary>
-        /// <param name="driver"></param>
-        /// <returns>true</returns>
-        public static bool WaitForDocumentReady(this IWebDriver driver)
-        {
-            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
-            try
-            {
-                var wait = new WebDriverWait(driver, TimeSpan.FromMilliseconds(10));
+    //    /// <summary>
+    //    /// Wait for browser ready state and Jquery Ready State
+    //    /// </summary>
+    //    /// <param name="driver"></param>
+    //    /// <returns>true</returns>
+    //    public static bool WaitForDocumentReady(this IWebDriver driver)
+    //    {
+    //        IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+    //        try
+    //        {
+    //            var wait = new WebDriverWait(driver, TimeSpan.FromMilliseconds(10));
 
-                //int cnt = 0;
-                bool retFlag = false;
-                if ((bool)jse.ExecuteScript("return window.jQuery != undefined"))
-                {
+    //            //int cnt = 0;
+    //            bool retFlag = false;
+    //            if ((bool)jse.ExecuteScript("return window.jQuery != undefined"))
+    //            {
 
-                    wait.Until(d => (bool)jse.ExecuteScript("return jQuery.active == 0"));
+    //                wait.Until(d => (bool)jse.ExecuteScript("return jQuery.active == 0"));
 
-                    wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
-                    retFlag = true;
-                }
-                else
-                {
-                    wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
-                    retFlag = true;
-                }
+    //                wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
+    //                retFlag = true;
+    //            }
+    //            else
+    //            {
+    //                wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
+    //                retFlag = true;
+    //            }
 
-                return retFlag;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
+    //            return retFlag;
+    //        }
+    //        catch (Exception)
+    //        {
+    //            return false;
+    //        }
+    //    }
 
-    }
+    //}
 
 
    
