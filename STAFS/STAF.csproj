@@ -20,7 +20,7 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
     <RepositoryUrl>https://github.com/sooraj171</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
     <PackageIconUrl />
-    <Version>3.2.9</Version>
+    <Version>3.2.12</Version>
     <AssemblyVersion>3.2.8.0</AssemblyVersion>
     <FileVersion>3.2.8.0</FileVersion>
     <RepositoryType />
@@ -54,6 +54,7 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
     <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="Selenium.Support" Version="4.9.1" />
     <PackageReference Include="Selenium.WebDriver" Version="4.9.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
   </ItemGroup>
 
   <ItemGroup>

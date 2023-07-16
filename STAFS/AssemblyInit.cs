@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using STAF.CF;
+using STAF.Utilities;
 
 namespace STAF.CF
 {
@@ -53,7 +54,8 @@ namespace STAF.CF
                 writer.Flush();
                 writer.Close();
 
-                File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", Directory.GetParent(resTestDir) + @"\ResultTemplateFinal.html",true);
+                string StrTestResDir = Directory.GetParent(resTestDir).ToString();
+                File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", StrTestResDir + @"\ResultTemplateFinal.html",true);
                 //if (SentEmail == "true")
                 //{
                 //    try
@@ -64,6 +66,10 @@ namespace STAF.CF
                 //    }
                 //    catch { Console.WriteLine("Error in sending email."); }
                 //}
+                if (File.Exists($"{StrTestResDir}\\Result.trx"))
+                {
+                    TRXParser.StoreExecutionResults(StrTestResDir + @"\Result.trx");
+                }
                 if (Environment.GetEnvironmentVariable("OverallFailFlag").ToLower() == "yes")
                 {
                     Assert.Fail("Some Test Cases failed in execution");
