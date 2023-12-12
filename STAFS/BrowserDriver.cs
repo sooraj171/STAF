@@ -12,13 +12,13 @@ namespace STAF.CF
 
         public IWebDriver BrowserDriverObject(string brwType)
         {
-            driver = GetWebDriver(brwType, AppDomain.CurrentDomain.BaseDirectory,false);
+            driver = GetWebDriver(brwType);
             return driver;
         }
 
         public IWebDriver BrowserDriverObject(string driverPath,ChromeOptions options)
         {
-            driver = new ChromeDriver(driverPath, options);
+            driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(driverPath), options);
             return driver;
         }
         /// <summary>
@@ -31,7 +31,7 @@ namespace STAF.CF
         public virtual IWebDriver GetBrowserDriverObject(string brwType, string driverPath="", bool isRemote = false)
         {
             driverPath = driverPath.Trim() == "" ? AppDomain.CurrentDomain.BaseDirectory : driverPath;
-            driver = GetWebDriver(brwType,driverPath, isRemote);
+            driver = GetWebDriver(brwType,isRemote);
             return driver;
         }
 
@@ -58,6 +58,34 @@ namespace STAF.CF
 
                 default:
                     driver = new ChromeDriver(driverPath, SetChromeOptions());
+                    break;
+
+            }
+            return driver;
+        }
+
+        private IWebDriver GetWebDriver(string brwType, bool isRemote=false,string RemoteDriverUrl="")
+        {
+            switch (brwType.ToLower())
+            {
+                case "chrome":
+                    if (isRemote)
+                    {
+                        driver = new RemoteWebDriver(new Uri(RemoteDriverUrl), SetChromeOptions());
+                    }
+                    else driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(), SetChromeOptions());
+                    break;
+
+                case "edge":
+                    if (isRemote)
+                    {
+                        driver = new RemoteWebDriver(new Uri(RemoteDriverUrl), SetEdgeOptions());
+                    }
+                    else driver = new EdgeDriver(EdgeDriverService.CreateDefaultService(), SetEdgeOptions());
+                    break;
+
+                default:
+                    driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(), SetChromeOptions());
                     break;
 
             }
