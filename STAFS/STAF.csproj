@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>STAF.UI.API</PackageId>
     <Authors>Sooraj Ramachandran</Authors>
     <Product>STAF</Product>
@@ -20,9 +20,9 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
     <RepositoryUrl>https://github.com/sooraj171</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
     <PackageIconUrl />
-    <Version>3.2.8</Version>
-    <AssemblyVersion>3.2.8.0</AssemblyVersion>
-    <FileVersion>3.2.8.0</FileVersion>
+    <Version>4.0.0</Version>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
     <RepositoryType />
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
