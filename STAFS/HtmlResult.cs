@@ -54,7 +54,7 @@ namespace STAF.CF
                     strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
                     strModuleName = strModuleName.Replace(":", "");
                     strLinkFile = strFilename + "_" + strModuleName + "_" + DateTime.Now.ToString("MMddyyyymmss") + ".png";
-                    image.SaveAsFile(strLinkFile, ScreenshotImageFormat.Png);
+                    image.SaveAsFile(strLinkFile);
                     strLinkFile = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(strLinkFile));
                     streamWriter.WriteLine("<p align=center><img class=\"screenshot\" src=\"" + strLinkFile + "\" class=\"img-circle\" width=\"304\" height=\"236\"/><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
                 }
