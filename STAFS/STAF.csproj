@@ -47,12 +47,12 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.101.0" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
-    <PackageReference Include="Selenium.Support" Version="4.8.2" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.8.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+    <PackageReference Include="Selenium.Support" Version="4.29.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.29.0" />
   </ItemGroup>
 
   <ItemGroup>
