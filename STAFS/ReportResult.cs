@@ -6,76 +6,37 @@ namespace STAF.CF
 {
     public class ReportResult
     {
-        public static void ReportResultPass(IWebDriver driver, TestContext context, string moduleName, string description, string exception = "")
+        public static void ReportResultStatus(IWebDriver driver, TestContext context, string moduleName, string description, string result, string exception = "")
         {
-            string result = "PASS";
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
+            string testName = Environment.GetEnvironmentVariable(context.TestName) ?? string.Empty;
+
+            try
             {
-                try
+                if (!string.IsNullOrEmpty(testName))
                 {
-                    HtmlResult.TC_ResultCreation(driver, Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+                    HtmlResult.TC_ResultCreation(driver, testName, moduleName, description, result, "");
                 }
             }
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {moduleName} {description} {result}. Exception: {ex.Message}");
+            }
+
+            Console.WriteLine($"{moduleName} {description} {result} {exception}");
         }
+
+        public static void ReportResultPass(IWebDriver driver, TestContext context, string moduleName, string description, string exception = "")
+            => ReportResultStatus(driver, context, moduleName, description, "PASS", exception);
 
         public static void ReportResultFail(IWebDriver driver, TestContext context, string moduleName, string description, string exception = "")
-        {
-            string result = "FAIL";
+            => ReportResultStatus(driver, context, moduleName, description, "FAIL", exception);
 
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
-            {
-                try
-                {
-                    HtmlResult.TC_ResultCreation(driver, Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-                }
-            }
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-        }
         public static void ReportResultWarn(IWebDriver driver, TestContext context, string moduleName, string description, string exception = "")
-        {
-            string result = "WARNING";
+            => ReportResultStatus(driver, context, moduleName, description, "WARNING", exception);
 
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
-            {
-                try
-                {
-                    HtmlResult.TC_ResultCreation(driver, Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-                }
-            }         
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-        }
         public static void ReportResultInfo(IWebDriver driver, TestContext context, string moduleName, string description, string exception = "")
-        {
-            string result = "INFO";
-
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
-            {
-                try
-                {
-                    HtmlResult.TC_ResultCreation(driver, Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-                }
-            }
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-        }
+            => ReportResultStatus(driver, context, moduleName, description, "INFO", exception);
     }
-
     public class ReportResultAPI
     {
         public static void ReportResultPass(TestContext context, string moduleName, string description, string exception = "")
