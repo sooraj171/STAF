@@ -39,70 +39,35 @@ namespace STAF.CF
     }
     public class ReportResultAPI
     {
-        public static void ReportResultPass(TestContext context, string moduleName, string description, string exception = "")
+        public static void ReportResultStatus(TestContext context, string moduleName, string description, string result, string exception = "")
         {
-            string result = "PASS";
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
+            string testName = Environment.GetEnvironmentVariable(context.TestName) ?? string.Empty;
+
+            try
             {
-                HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
+                if (!string.IsNullOrEmpty(testName))
+                {
+                    HtmlResult.TC_ResultCreation(testName, moduleName, description, result, "");
+                }
             }
-            //TTPReporter.ReportEvent(result, moduleName, description+ " "+exception);
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {moduleName} {description} {result}. Exception: {ex.Message}");
+            }
+
+            Console.WriteLine($"{moduleName} {description} {result} {exception}");
         }
+
+        public static void ReportResultPass(TestContext context, string moduleName, string description, string exception = "")
+            => ReportResultStatus(context, moduleName, description, "PASS", exception);
 
         public static void ReportResultFail(TestContext context, string moduleName, string description, string exception = "")
-        {
-            string result = "FAIL";
-
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
-            {
-                try
-                {
-                    HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-                    //HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable("resultFile"), moduleName, description, result, "");
-                }
-            }
-            //TTPReporter.ReportEvent(result, moduleName, description +" " +exception);
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-        }
+            => ReportResultStatus(context, moduleName, description, "FAIL", exception);
 
         public static void ReportResultWarn(TestContext context, string moduleName, string description, string exception = "")
-        {
-            string result = "WARNING";
+            => ReportResultStatus(context, moduleName, description, "WARNING", exception);
 
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
-            {
-                try
-                {
-                    HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-                }
-            }
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-        }
         public static void ReportResultInfo(TestContext context, string moduleName, string description, string exception = "")
-        {
-            string result = "INFO";
-
-            if (Environment.GetEnvironmentVariable(context.TestName) != null)
-            {
-                try
-                {
-                    HtmlResult.TC_ResultCreation(Environment.GetEnvironmentVariable(context.TestName), moduleName, description, result, "");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-                }
-            }
-            Console.WriteLine(moduleName + " " + description + " " + result + " " + exception);
-        }
+            => ReportResultStatus(context, moduleName, description, "INFO", exception);
     }
 }

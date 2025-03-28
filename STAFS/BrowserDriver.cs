@@ -10,6 +10,19 @@ namespace STAF.CF
     {
         private IWebDriver driver;
 
+        // Create a new driver instance based on the browser type (with automatic driver management in Selenium 4)
+        public IWebDriver CreateDriverInstance(string brwType)
+        {
+            driver = GetWebDriver(brwType, string.Empty, false);
+            return driver;
+        }
+
+        // Overloaded method with specific options for Chrome
+        public IWebDriver CreateDriverInstance(string driverPath, ChromeOptions options)
+        {
+            driver = new ChromeDriver(driverPath, options);
+            return driver;
+        }
         public IWebDriver BrowserDriverObject(string brwType)
         {
             driver = GetWebDriver(brwType, AppDomain.CurrentDomain.BaseDirectory,false);
@@ -36,31 +49,64 @@ namespace STAF.CF
         }
 
 
-        private IWebDriver GetWebDriver(string brwType, string driverPath, bool isRemote)
+        //private IWebDriver GetWebDriver(string brwType, string driverPath, bool isRemote)
+        //{
+        //    switch (brwType.ToLower())
+        //    {
+        //        case "chrome":
+        //            if (isRemote)
+        //            {
+        //                driver = new RemoteWebDriver(new Uri(driverPath), SetChromeOptions()); 
+        //            }
+        //            else driver = new ChromeDriver(driverPath, SetChromeOptions());
+        //            break;
+
+        //        case "edge":
+        //            if (isRemote)
+        //            {
+        //                driver = new RemoteWebDriver(new Uri(driverPath), SetEdgeOptions());
+        //            }
+        //            else driver = new EdgeDriver(driverPath, SetEdgeOptions());
+        //            break;
+
+        //        default:
+        //            driver = new ChromeDriver(driverPath, SetChromeOptions());
+        //            break;
+
+        //    }
+        //    return driver;
+        //}
+
+        /// <summary>
+        /// Getting the WebDriver object for the test run. 
+        /// Supports local and remote drivers based on the isRemote flag.
+        /// </summary>
+        private IWebDriver GetWebDriver(string brwType, string driverPath = "", bool isRemote = false)
         {
-            switch (brwType.ToLower())
+            if (string.IsNullOrWhiteSpace(driverPath))
+            {
+                driverPath = AppDomain.CurrentDomain.BaseDirectory;
+            }
+
+            brwType = brwType.ToLower();
+            switch (brwType)
             {
                 case "chrome":
-                    if (isRemote)
-                    {
-                        driver = new RemoteWebDriver(new Uri(driverPath), SetChromeOptions()); 
-                    }
-                    else driver = new ChromeDriver(driverPath, SetChromeOptions());
+                    driver = isRemote
+                        ? new RemoteWebDriver(new Uri(driverPath), SetChromeOptions())
+                        : new ChromeDriver(SetChromeOptions());
                     break;
 
                 case "edge":
-                    if (isRemote)
-                    {
-                        driver = new RemoteWebDriver(new Uri(driverPath), SetEdgeOptions());
-                    }
-                    else driver = new EdgeDriver(driverPath, SetEdgeOptions());
+                    driver = isRemote
+                        ? new RemoteWebDriver(new Uri(driverPath), SetEdgeOptions())
+                        : new EdgeDriver(SetEdgeOptions());
                     break;
 
                 default:
-                    driver = new ChromeDriver(driverPath, SetChromeOptions());
-                    break;
-
+                    throw new ArgumentException($"Unsupported browser type: {brwType}", nameof(brwType));
             }
+
             return driver;
         }
 

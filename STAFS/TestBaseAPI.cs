@@ -31,19 +31,19 @@ namespace STAF.CF
             stopwatch = Stopwatch.StartNew();
             currTestName = TestContext.TestName.ToString();
             currResultFile = CommonAction.setStartUpValues(TestContext);
-            string endPoint = TestContext.Properties["browser"].ToString();
+            //string endPoint = TestContext.Properties["browser"].ToString();
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            currTestName = this.TestContext.TestName;
+            currTestName = TestContext.TestName;
             stopwatch.Stop();
-            string totTime = stopwatch.Elapsed.ToString("mm") + ":" + stopwatch.Elapsed.ToString("ss") + "Min:Sec";
+            string totTime = stopwatch.Elapsed.ToString(@"mm\:ss") + " Min:Sec";
 
-            CommonAction.setCleanUpValues(currResultFile,TestContext, totTime);
+            CommonAction.setCleanUpValues(currResultFile, TestContext, totTime);
 
-            if (Environment.GetEnvironmentVariable("failFlag").ToString() == "yes")
+            if (string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase))
             {
                 Assert.Fail();
             }

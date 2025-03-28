@@ -24,19 +24,29 @@ namespace STAF.CF
                 //Console.WriteLine("Before all tests");
                 var driverProcess = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
                 _testContext = tc;
+
                 foreach (var process in driverProcess)
                 {
                     process.Kill();
                 }
-                resTestDir = tc.TestDir;
+                resTestDir = tc.TestRunDirectory;
                 string locPath = tc.DeploymentDirectory;
-                MakeAfile(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html");
+                string resultFilePath = Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
+                MakeAfile(resultFilePath);
+
+                // Initialize environment variables
                 Environment.SetEnvironmentVariable("OverallFailFlag", "No");
                 Environment.SetEnvironmentVariable("resultbodyfinal", "");
                 SentEmail=tc.Properties["useemail"]==null?"": tc.Properties["useemail"].ToString().ToLower();
                 
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Log the exception or rethrow as needed
+                Console.WriteLine("Error in AssemblyInitialize: " + ex.Message);
+                throw new Exception("Error in AssemblyInitialize: " + ex.Message);
+            }
+
         }
 
         [AssemblyCleanup]
@@ -47,13 +57,13 @@ namespace STAF.CF
                 closeAllBrowser();
 
                 StreamWriter writer;
-                string overallResult = DirectoryUtils.BaseDirectory + "\\ResultTemplate.html";
+                string overallResult = Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
                 writer = new StreamWriter(File.Open(overallResult, FileMode.Append, FileAccess.Write, FileShare.Write));
                 writer.WriteLine(Environment.GetEnvironmentVariable("resultbodyfinal"));
                 writer.Flush();
                 writer.Close();
-
-                File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", Directory.GetParent(resTestDir) + @"\ResultTemplateFinal.html",true);
+                string finalResultFile = Path.Combine(Directory.GetParent(resTestDir).ToString(), "ResultTemplateFinal.html");
+                File.Copy(overallResult, finalResultFile, true);
                 //if (SentEmail == "true")
                 //{
                 //    try
@@ -69,15 +79,26 @@ namespace STAF.CF
                     Assert.Fail("Some Test Cases failed in execution");
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in AssemblyCleanup: " + ex.Message);
+                throw new Exception("Error in AssemblyCleanup: " + ex.Message);
+            }
         }
 
         public static void closeAllBrowser()
         {
-            var driverP = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
-            foreach (var process in driverP)
+            try
             {
-                process.Kill();
+                var driverP = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
+                foreach (var process in driverP)
+                {
+                    process.Kill();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while closing browsers: " + ex.Message);
             }
         }
 

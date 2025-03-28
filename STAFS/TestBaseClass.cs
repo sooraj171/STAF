@@ -12,42 +12,47 @@ namespace STAF.CF
     public class TestBaseClass: BrowserDriver
     {
         protected IWebDriver driver;
-
         private TestContext testContext;
-        public TestContext TestContext 
+
+        public TestContext TestContext
         {
             get { return testContext; }
-            set { testContext = value; } 
+            set { testContext = value; }
         }
+
         public string currTestName;
         public string currResultFile;
         public static int exeCnt = 0;
-
         private Stopwatch stopwatch;
 
         [TestInitialize]
         public void TestInitialize()
         {
             stopwatch = Stopwatch.StartNew();
-            currTestName = TestContext.TestName.ToString();
+            currTestName = TestContext.TestName;
             currResultFile = CommonAction.setStartUpValues(TestContext);
-            string brwType = TestContext.Properties["browser"].ToString(); 
-            string driverPath = TestContext.Properties["driverPath"].ToString();
+
+            // Safer retrieval of TestContext properties
+            string brwType = TestContext.Properties.Contains("browser") ? TestContext.Properties["browser"].ToString() : "chrome";
+            string driverPath = TestContext.Properties.Contains("driverPath") ? TestContext.Properties["driverPath"].ToString() : "";
+
             driver = GetBrowserDriverObject(brwType, driverPath);
         }
+
 
         [TestCleanup]
         public void TestCleanup()
         {
-            currTestName = this.TestContext.TestName;
+            currTestName = TestContext.TestName;
             stopwatch.Stop();
-            string totTime = stopwatch.Elapsed.ToString("mm") + ":" + stopwatch.Elapsed.ToString("ss") + "Min:Sec";
+            string totTime = stopwatch.Elapsed.ToString(@"mm\:ss") + " Min:Sec";
 
-            CommonAction.setCleanUpValues(currResultFile,TestContext, totTime);
+            CommonAction.setCleanUpValues(currResultFile, TestContext, totTime);
 
             driver.Quit();
-           
-            if (Environment.GetEnvironmentVariable("failFlag").ToString() == "yes")
+
+            // Null-safe check for environment variable
+            if (string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase))
             {
                 Assert.Fail();
             }
