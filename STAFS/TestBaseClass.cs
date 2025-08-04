@@ -1,10 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace STAF.CF
 {
@@ -47,7 +44,14 @@ namespace STAF.CF
             stopwatch.Stop();
             string totTime = stopwatch.Elapsed.ToString(@"mm\:ss") + " Min:Sec";
 
-            CommonAction.setCleanUpValues(currResultFile, TestContext, totTime);
+            try
+            {
+                CommonAction.setCleanUpValues(currResultFile, TestContext, totTime);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during cleanup: {ex.Message}");
+            }
 
             driver.Quit();
 
