@@ -7,6 +7,8 @@ namespace STAF.CF
 {
     public class HtmlResult
     {
+        private static readonly object fileLock = new object();
+        private static readonly object fileLockAPI = new object();
         public static void TC_ResultStartTime(string strProject, string strFileName, string RelativePath)
         {
             DateTime now = DateTime.Now;
@@ -21,112 +23,121 @@ namespace STAF.CF
 
         public static void TC_ResultCreation(IWebDriver driver, string strFilename, string strModuleName, string strDesc, string strResult, string strLinkFile)
         {
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
-            int num1 = 0;
-            if (strResult == "")
-                strResult = "Not Executed";
-            if (strModuleName != "")
+            lock (fileLock)
             {
-                int num2 = num1 + 1;
-                streamWriter.WriteLine("<tr class='result' bgcolor = #80D8FF >");
-                streamWriter.WriteLine("<td width=200>");
-                streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strModuleName + "</td>");
-                streamWriter.WriteLine("<td width=400nowrap>");
-                streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strDesc + "</td>");
-                streamWriter.WriteLine("<td width=200>");
-                if (strResult.ToLower() == "pass")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2> As Expected </td>");
-                else if (strResult.ToLower() == "fail")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not As Expected </td>");
-                else if (strResult.ToLower() == "warning")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Warning </td>");
-                else if (strResult.ToLower() == "info")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Information </td>");
-                else
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not Run</td>");
-                streamWriter.WriteLine("<td height=23width=200>");
-                if (strResult.ToLower() == "pass")
-                    streamWriter.WriteLine("<p align=center><a href=\"" + strLinkFile + "\"><b><font face=Verdana size=2 color=#008000>" + strResult + "</font></b></a></td>");
-                else if (strResult.ToLower() == "fail")
+                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
                 {
-                    Screenshot image = ((ITakesScreenshot)driver).GetScreenshot();
-                    Environment.SetEnvironmentVariable("failFlag", "yes");
-                    strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
-                    strModuleName = strModuleName.Replace(":", "");
-                    strLinkFile = strFilename + "_" + strModuleName + "_" + DateTime.Now.ToString("MMddyyyymmss") + ".png";
-                    image.SaveAsFile(strLinkFile);
-                    strLinkFile = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(strLinkFile));
-                    streamWriter.WriteLine("<p align=center><img class=\"screenshot\" src=\"" + strLinkFile + "\" class=\"img-circle\" width=\"304\" height=\"236\"/><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
+                    int num1 = 0;
+                    if (strResult == "")
+                        strResult = "Not Executed";
+                    if (strModuleName != "")
+                    {
+                        int num2 = num1 + 1;
+                        streamWriter.WriteLine("<tr class='result' bgcolor = #80D8FF >");
+                        streamWriter.WriteLine("<td width=200>");
+                        streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strModuleName + "</td>");
+                        streamWriter.WriteLine("<td width=400nowrap>");
+                        streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strDesc + "</td>");
+                        streamWriter.WriteLine("<td width=200>");
+                        if (strResult.ToLower() == "pass")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2> As Expected </td>");
+                        else if (strResult.ToLower() == "fail")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not As Expected </td>");
+                        else if (strResult.ToLower() == "warning")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Warning </td>");
+                        else if (strResult.ToLower() == "info")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Information </td>");
+                        else
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not Run</td>");
+                        streamWriter.WriteLine("<td height=23width=200>");
+                        if (strResult.ToLower() == "pass")
+                            streamWriter.WriteLine("<p align=center><a href=\"" + strLinkFile + "\"><b><font face=Verdana size=2 color=#008000>" + strResult + "</font></b></a></td>");
+                        else if (strResult.ToLower() == "fail")
+                        {
+                            Screenshot image = ((ITakesScreenshot)driver).GetScreenshot();
+                            Environment.SetEnvironmentVariable("failFlag", "yes");
+                            strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
+                            strModuleName = strModuleName.Replace(":", "");
+                            strLinkFile = strFilename + "_" + strModuleName + "_" + DateTime.Now.ToString("MMddyyyymmss") + ".png";
+                            image.SaveAsFile(strLinkFile);
+                            strLinkFile = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(strLinkFile));
+                            streamWriter.WriteLine("<p align=center><img class=\"screenshot\" src=\"" + strLinkFile + "\" class=\"img-circle\" width=\"304\" height=\"236\"/><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
+                        }
+                        else if (strResult.ToLower() == "warning")
+                        {
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ff9933>" + strResult + "</font></b></td>");
+                        }
+                        else if (strResult.ToLower() == "info")
+                        {
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ffffff>" + strResult + "</font></b></td>");
+                        }
+                        else
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0888>" + strResult + "</font></b></td>");
+                        streamWriter.WriteLine("</tr>");
+                    }
+                    streamWriter.Flush();
                 }
-                else if (strResult.ToLower() == "warning")
-                {
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ff9933>" + strResult + "</font></b></td>");
-                }
-                else if (strResult.ToLower() == "info")
-                {
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ffffff>" + strResult + "</font></b></td>");
-                }
-                else
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0888>" + strResult + "</font></b></td>");
-                streamWriter.WriteLine("</tr>");
             }
-            streamWriter.Flush();
-            streamWriter.Close();
         }
+
 
         public static void TC_ResultCreation(string strFilename, string strModuleName, string strDesc, string strResult, string strLinkFile)
         {
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
-            int num1 = 0;
-            if (strResult == "")
-                strResult = "Not Executed";
-            if (strModuleName != "")
+            lock (fileLock)
             {
-                int num2 = num1 + 1;
-                streamWriter.WriteLine("<tr class='result' bgcolor = #80D8FF >");
-                streamWriter.WriteLine("<td width=200>");
-                streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strModuleName + "</td>");
-                streamWriter.WriteLine("<td width=400nowrap>");
-                streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strDesc + "</td>");
-                streamWriter.WriteLine("<td width=200>");
-                if (strResult.ToLower() == "pass")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2> As Expected </td>");
-                else if (strResult.ToLower() == "fail")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not As Expected </td>");
-                else if (strResult.ToLower() == "warning")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Warning </td>");
-                else if (strResult.ToLower() == "info")
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Information </td>");
-                else
-                    streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not Run</td>");
-                streamWriter.WriteLine("<td height=23width=200>");
-                if (strResult.ToLower() == "pass")
-                    streamWriter.WriteLine("<p align=center><a href=\"" + strLinkFile + "\"><b><font face=Verdana size=2 color=#008000>" + strResult + "</font></b></a></td>");
-                else if (strResult.ToLower() == "fail")
+                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
                 {
-                    Environment.SetEnvironmentVariable("failFlag", "yes");
-                    strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
+                    int num1 = 0;
+                    if (strResult == "")
+                        strResult = "Not Executed";
+                    if (strModuleName != "")
+                    {
+                        int num2 = num1 + 1;
+                        streamWriter.WriteLine("<tr class='result' bgcolor = #80D8FF >");
+                        streamWriter.WriteLine("<td width=200>");
+                        streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strModuleName + "</td>");
+                        streamWriter.WriteLine("<td width=400nowrap>");
+                        streamWriter.WriteLine("<p align=center><font face=Verdana size=2>" + strDesc + "</td>");
+                        streamWriter.WriteLine("<td width=200>");
+                        if (strResult.ToLower() == "pass")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2> As Expected </td>");
+                        else if (strResult.ToLower() == "fail")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not As Expected </td>");
+                        else if (strResult.ToLower() == "warning")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Warning </td>");
+                        else if (strResult.ToLower() == "info")
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Information </td>");
+                        else
+                            streamWriter.WriteLine("<p align=center><font face=Verdana size=2>Not Run</td>");
+                        streamWriter.WriteLine("<td height=23width=200>");
+                        if (strResult.ToLower() == "pass")
+                            streamWriter.WriteLine("<p align=center><a href=\"" + strLinkFile + "\"><b><font face=Verdana size=2 color=#008000>" + strResult + "</font></b></a></td>");
+                        else if (strResult.ToLower() == "fail")
+                        {
+                            Environment.SetEnvironmentVariable("failFlag", "yes");
+                            strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
+                        }
+                        else if (strResult.ToLower() == "warning")
+                        {
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ff9933>" + strResult + "</font></b></td>");
+                        }
+                        else if (strResult.ToLower() == "info")
+                        {
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ffffff>" + strResult + "</font></b></td>");
+                        }
+                        else
+                            streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0888>" + strResult + "</font></b></td>");
+                        streamWriter.WriteLine("</tr>");
+                    }
+                    streamWriter.Flush();
                 }
-                else if (strResult.ToLower() == "warning")
-                {
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ff9933>" + strResult + "</font></b></td>");
-                }
-                else if (strResult.ToLower() == "info")
-                {
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#ffffff>" + strResult + "</font></b></td>");
-                }
-                else
-                    streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0888>" + strResult + "</font></b></td>");
-                streamWriter.WriteLine("</tr>");
             }
-            streamWriter.Flush();
-            streamWriter.Close();
         }
 
         public static void TC_EndTime(string strFilename)
         {
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write));
+            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
             streamWriter.WriteLine("<tr>");
             streamWriter.WriteLine("<td class='headBk' COLSPAN = 4>");
             streamWriter.WriteLine("<p align=justify><b><font color=white size=2 face= Verdana>&nbsp;END TIME :&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");

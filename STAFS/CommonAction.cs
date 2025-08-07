@@ -158,12 +158,12 @@ namespace STAF.CF
             try
             {
                 Environment.SetEnvironmentVariable("currTestName", currTestName.TestName);
-                resultFile = currTestName.TestDir + "\\" + currTestName.TestName + ".html";
+                resultFile = currTestName.TestRunDirectory + "\\" + currTestName.TestName + ".html"; // Updated to use TestRunDirectory
                 Environment.SetEnvironmentVariable(currTestName.TestName, resultFile);
                 Environment.SetEnvironmentVariable("failFlag", "no");
-                string StrProject = currTestName.Properties["project"]==null?"TestSteps": "TestSteps:"+ currTestName.Properties["project"].ToString();
-                HtmlResult.TC_ResultStartTime(StrProject, currTestName.TestName, currTestName.TestDir);
-                //System.IO.File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", currTestName.TestDir + @"\ResultTemplate.html");
+                string StrProject = currTestName.Properties["project"] == null ? "TestSteps" : "TestSteps:" + currTestName.Properties["project"].ToString();
+                HtmlResult.TC_ResultStartTime(StrProject, currTestName.TestName, currTestName.TestRunDirectory); // Updated to use TestRunDirectory
+                // System.IO.File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", currTestName.TestRunDirectory + @"\ResultTemplate.html"); // Updated to use TestRunDirectory
             }
             catch (Exception)
             {
@@ -440,7 +440,7 @@ namespace STAF.CF
         {
             get
             {
-                string name = Assembly.GetExecutingAssembly().GetName().CodeBase;
+                string name = Assembly.GetExecutingAssembly().Location;
                 name = Path.GetDirectoryName(name);
                 //
                 // Support for unit testing on the desktop. CodeBase returns a path with "file:\" at the start
