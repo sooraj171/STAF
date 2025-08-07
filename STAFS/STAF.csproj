@@ -20,9 +20,9 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
     <RepositoryUrl>https://github.com/sooraj171</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
     <PackageIconUrl />
-    <Version>4.0.8</Version>
-    <AssemblyVersion>4.0.8.0</AssemblyVersion>
-    <FileVersion>4.0.8.0</FileVersion>
+    <Version>4.1.0</Version>
+    <AssemblyVersion>4.1.0.0</AssemblyVersion>
+    <FileVersion>4.1.0.0</FileVersion>
     <RepositoryType />
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
