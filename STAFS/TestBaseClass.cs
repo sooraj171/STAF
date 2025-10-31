@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace STAF.CF
 {
@@ -30,8 +31,8 @@ namespace STAF.CF
             currResultFile = CommonAction.setStartUpValues(TestContext);
 
             // Safer retrieval of TestContext properties
-            string brwType = TestContext.Properties.Contains("browser") ? TestContext.Properties["browser"].ToString() : "chrome";
-            string driverPath = TestContext.Properties.Contains("driverPath") ? TestContext.Properties["driverPath"].ToString() : "";
+            string brwType = TestContext.Properties.ToString().Contains("browser") ? TestContext.Properties["browser"].ToString() : "chrome";
+            string driverPath = TestContext.Properties.ToString().Contains("driverPath") ? TestContext.Properties["driverPath"].ToString() : "";
 
             driver = GetBrowserDriverObject(brwType, driverPath);
         }
