@@ -5,7 +5,7 @@
     <PackageId>STAF.UI.API</PackageId>
     <Authors>Sooraj Ramachandran</Authors>
     <Product>STAF</Product>
-    <Description>Test Automation Framework for Selenium UI and API Tests with inbuild reporting capabilities</Description>
+    <Description>A Test Automation Framework for Selenium-based UI and API testing, featuring built-in reporting capabilities.</Description>
     <Copyright></Copyright>
     <AssemblyName>STAF</AssemblyName>
     <RootNamespace>STAF</RootNamespace>
@@ -48,9 +48,11 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Deque.AxeCore.Selenium" Version="4.11.0" />
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
-    <PackageReference Include="MSTest.TestFramework" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.0.2" />
     <PackageReference Include="Selenium.Support" Version="4.38.0" />
     <PackageReference Include="Selenium.WebDriver" Version="4.38.0" />
   </ItemGroup>
