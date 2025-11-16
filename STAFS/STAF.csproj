@@ -12,17 +12,17 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>Selenium, Framework, API, UI Tests, API Tests</PackageTags>
+    <PackageTags>Selenium, Framework, API, UI Tests, API Tests, Excel</PackageTags>
     <PackageReleaseNotes>UI and API test framework for Selenium.
 Supports Chrome, Edge &amp; Remote Drivers.
 Supports Parallel execution and is thread safe.
 Install STAFTemplate Test automation framework from Microsoft Market place. (From VS IDE -&gt; Extension -&gt; Manage Extension -&gt; Online Templates -&gt; Search "STAFTemplate"</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/sooraj171</RepositoryUrl>
+    <RepositoryUrl>https://github.com/sooraj171/STAF.Selenium.Tests</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
     <PackageIconUrl />
-    <Version>4.2.1</Version>
-    <AssemblyVersion>4.2.1.0</AssemblyVersion>
-    <FileVersion>4.2.1.0</FileVersion>
+    <Version>4.2.2</Version>
+    <AssemblyVersion>4.2.2.0</AssemblyVersion>
+    <FileVersion>4.2.2.0</FileVersion>
     <RepositoryType />
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
