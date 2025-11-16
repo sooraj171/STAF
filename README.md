@@ -139,6 +139,25 @@ public void TestAPIStatus()
     ReportResultAPI.ReportResultPass(TestContext, "API", "Status check passed");
 }
 ```
+### Accessibility Tests Setup
+
+This project includes a lightweight wrapper around Deque.AxeCore.Selenium to run accessibility scans: the `SATF.Accessibility.AxeAccessibility` class (file: `STAFS/Accessibility/AxeAccessibility.cs`).
+
+Quick overview
+- Purpose: run axe-core scans from tests and produce a readable HTML report.
+- Key methods:
+  - `AnalyzePage()` — runs an accessibility scan of the current page and returns the raw result object.
+  - `AnalyzePageAndSaveHtml(string filePath)` — runs the scan and writes a styled HTML report (summary + details + raw JSON).
+  - `SaveResultAsHtml(string filePath, object result)` — save a previously obtained result to HTML.
+  - `AnalyzeCssSelector(string cssSelector)` — run scan scoped to a CSS selector.
+  - `AnalyzeElement(IWebElement element)` — run scan for an element that has an `id` attribute (uses `#id`).
+  - `AnalyzeWithConfigurator(Action<AxeBuilder> configure)` — pass a lambda to customize the `AxeBuilder` before analysis.
+
+Usage examples
+
+- Simple run and save report (recommended inside a test cleanup or explicit step):
+
+````````
 
 ## **License:**  
      This project is licensed under the MIT License.
