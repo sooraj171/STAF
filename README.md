@@ -29,8 +29,9 @@ From your Visual Studio IDE Navigate to file menu:
 - Navigate to the https://github.com/sooraj171/STAF.Selenium.Tests.
 - Clone or download the above repo.
 - Open the project from Visual Studio
+- From the Test menu, Click Configure Run Settings and select RunSettings file from the solution.
 - From the Build menu, Click Build Project
-- From Test Explorer, select the test and Click run.
+- From Test Explorer, select a test/multiple tests and Click run.
 - A sample test will get executed.
 
 ## **How to Override the driver and driver options**
@@ -155,8 +156,6 @@ Quick overview
 Usage examples
 
 - Simple run and save report (recommended inside a test cleanup or explicit step):
-
-````````
 
 ## **License:**  
      This project is licensed under the MIT License.
