@@ -15,14 +15,16 @@
     <PackageTags>Selenium, Framework, API, UI Tests, API Tests, Excel</PackageTags>
     <PackageReleaseNotes>UI and API test framework for Selenium.
 Supports Chrome, Edge &amp; Remote Drivers.
-Supports Parallel execution and is thread safe.
-Install STAFTemplate Test automation framework from Microsoft Market place. (From VS IDE -&gt; Extension -&gt; Manage Extension -&gt; Online Templates -&gt; Search "STAFTemplate"</PackageReleaseNotes>
+      Supports Parallel execution and is thread safe.
+      Click the repository link to setup and get started quickly with a sample project.
+      https://github.com/sooraj171/STAF.Selenium.Tests
+    </PackageReleaseNotes>
     <RepositoryUrl>https://github.com/sooraj171/STAF.Selenium.Tests</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
     <PackageIconUrl />
-    <Version>4.2.2</Version>
-    <AssemblyVersion>4.2.2.0</AssemblyVersion>
-    <FileVersion>4.2.2.0</FileVersion>
+    <Version>4.3.2</Version>
+    <AssemblyVersion>4.3.2.0</AssemblyVersion>
+    <FileVersion>4.3.2.0</FileVersion>
     <RepositoryType />
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -51,10 +53,10 @@ Install STAFTemplate Test automation framework from Microsoft Market place. (Fro
     <PackageReference Include="Deque.AxeCore.Selenium" Version="4.11.0" />
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1" />
     <PackageReference Include="MSTest.TestFramework" Version="4.0.2" />
-    <PackageReference Include="Selenium.Support" Version="4.38.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.38.0" />
+    <PackageReference Include="Selenium.Support" Version="4.39.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.39.0" />
   </ItemGroup>
 
   <ItemGroup>

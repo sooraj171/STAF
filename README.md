@@ -26,10 +26,9 @@ The framework consists of the following key components:
 ## **How to implement**
 
 From your Visual Studio IDE Navigate to file menu:
-- Extension -> Manage Extension -> Online Templates -> Search "STAFTemplate".
-- Install the template successfully.
--   Create a new project from Visual Studio
-- Search for the template "STAFSample" and select it and create project
+- Navigate to the https://github.com/sooraj171/STAF.Selenium.Tests.
+- Clone or download the above repo.
+- Open the project from Visual Studio
 - From the Build menu, Click Build Project
 - From Test Explorer, select the test and Click run.
 - A sample test will get executed.
