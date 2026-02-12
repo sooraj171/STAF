@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using System.Collections.Generic;
 using System.IO;
 
@@ -8,7 +8,7 @@ namespace STAF.CF.Excel
     {
         public ExcelCompareStatus CompareFiles(string File1, string File2, int SheetIndexFile1 = 1, int SheetIndexFile2 = 1)
         {
-            ExcelCompareStatus compareStatus = new();
+            var compareStatus = new ExcelCompareStatus();
             if (!File.Exists(File1))
             {
                 compareStatus.IsMatching = false;
@@ -143,7 +143,7 @@ namespace STAF.CF.Excel
 
     public class ExcelCompareStatus
     {
-        public bool IsMatching{ get; set; }
-        public List<string> Messages{ get; set; }
+        public bool IsMatching { get; set; }
+        public List<string> Messages { get; set; } = new List<string>();
     }
 }

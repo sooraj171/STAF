@@ -1,8 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Text;
 using STAF.CF;
 
 namespace STAF.CF
@@ -11,6 +12,7 @@ namespace STAF.CF
     public class AssemblyInit
     {
         private static string resTestDir = "";
+        private static string resultFilePath = "";
         private static string SentEmail = "false";
         private static string MailTo = "";
         private static string MailFrom = "donotreply@test.com";
@@ -21,7 +23,6 @@ namespace STAF.CF
         {
             try
             {
-                //Console.WriteLine("Before all tests");
                 var driverProcess = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
                 _testContext = tc;
 
@@ -30,23 +31,24 @@ namespace STAF.CF
                     process.Kill();
                 }
                 resTestDir = tc.TestRunDirectory;
-                string locPath = tc.DeploymentDirectory;
-                string resultFilePath = Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
+                string resultDir = tc.TestRunDirectory ?? DirectoryUtils.BaseDirectory;
+                resultFilePath = Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
                 MakeAfile(resultFilePath);
 
-                // Initialize environment variables
+                // File-based accumulator for parallel execution (env var is overwritten by concurrent tests)
+                string accumulatorPath = Path.Combine(DirectoryUtils.BaseDirectory, "ResultBodyAccumulator.txt");
+                File.WriteAllText(accumulatorPath, string.Empty);
+                Environment.SetEnvironmentVariable("resultAccumulatorPath", accumulatorPath);
+
                 Environment.SetEnvironmentVariable("OverallFailFlag", "No");
                 Environment.SetEnvironmentVariable("resultbodyfinal", "");
-                SentEmail=tc.Properties["useemail"]==null?"": tc.Properties["useemail"].ToString().ToLower();
-                
+                SentEmail = tc.Properties["useemail"] == null ? "" : tc.Properties["useemail"].ToString().ToLower();
             }
             catch (Exception ex)
             {
-                // Log the exception or rethrow as needed
                 Console.WriteLine("Error in AssemblyInitialize: " + ex.Message);
                 throw new Exception("Error in AssemblyInitialize: " + ex.Message);
             }
-
         }
 
         [AssemblyCleanup]
@@ -56,12 +58,17 @@ namespace STAF.CF
             {
                 closeAllBrowser();
 
-                StreamWriter writer;
-                string overallResult = Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
-                writer = new StreamWriter(File.Open(overallResult, FileMode.Append, FileAccess.Write, FileShare.Write));
-                writer.WriteLine(Environment.GetEnvironmentVariable("resultbodyfinal"));
-                writer.Flush();
-                writer.Close();
+                string overallResult = resultFilePath ?? Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
+                string accumulatorPath = Environment.GetEnvironmentVariable("resultAccumulatorPath")
+                    ?? Path.Combine(DirectoryUtils.BaseDirectory, "ResultBodyAccumulator.txt");
+                string resultBodyFinal = File.Exists(accumulatorPath)
+                    ? File.ReadAllText(accumulatorPath)
+                    : (Environment.GetEnvironmentVariable("resultbodyfinal") ?? "");
+
+                using (var writer = new StreamWriter(File.Open(overallResult, FileMode.Append, FileAccess.Write, FileShare.Read)))
+                {
+                    writer.WriteLine(resultBodyFinal);
+                }
                 string finalResultFile = Path.Combine(Directory.GetParent(resTestDir).ToString(), "ResultTemplateFinal.html");
                 File.Copy(overallResult, finalResultFile, true);
                 //if (SentEmail == "true")
@@ -74,7 +81,7 @@ namespace STAF.CF
                 //    }
                 //    catch { Console.WriteLine("Error in sending email."); }
                 //}
-                if (Environment.GetEnvironmentVariable("OverallFailFlag").ToLower() == "yes")
+                if (string.Equals(Environment.GetEnvironmentVariable("OverallFailFlag"), "yes", StringComparison.OrdinalIgnoreCase))
                 {
                     Assert.Fail("Some Test Cases failed in execution");
                 }
