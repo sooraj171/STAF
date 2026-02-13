@@ -1,4 +1,4 @@
-# STAF ? Simple Test Automation Framework
+# STAF - Simple Test Automation Framework
 
 **STAF** is a .NET test automation framework for Selenium-based UI testing, API testing, and Excel validation. It provides base classes, HTML reporting, parallel execution, and optional database and accessibility support. The framework is distributed as the **STAF.UI.API** NuGet package and is built for **.NET 8** with **MSTest**.
 
