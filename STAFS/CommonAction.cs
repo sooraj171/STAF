@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Net.Mail;
 using System.Xml;
@@ -172,65 +172,73 @@ namespace STAF.CF
             return resultFile;
         }
 
+        private static readonly object _resultLock = new object();
+
         public static void setCleanUpValues(string currresultFile, TestContext currTestContext, string totTime)
         {
             string currTestName = currTestContext.TestName;
 
             HtmlResult.TC_EndTime(currresultFile);
             currTestContext.AddResultFile(currresultFile);
-            //StreamWriter writer;
-            //string overallResult = DirectoryUtils.BaseDirectory + "\\ResultTemplate.html";
             string contents = File.ReadAllText(currresultFile);
 
-            string strBody = Environment.GetEnvironmentVariable("resultbody") == null ? "" : Environment.GetEnvironmentVariable("resultbody");
-
-            StringBuilder mailBody = new StringBuilder("");
-            StringBuilder resBody = new StringBuilder("");
-
-
-            if (strBody == "")
+            lock (_resultLock)
             {
-                mailBody.AppendLine("<html>");
-                mailBody.AppendLine("<body>");
-                mailBody.AppendLine("<p><font color=#000080 size=4>Automation Test Result Status :</font></p>");
-                Environment.SetEnvironmentVariable("resultbody", mailBody.ToString());
-            }
-            else
-            {
-                mailBody.AppendLine(strBody);
-            }
-            if (Environment.GetEnvironmentVariable("resultbodyfinal") != null)
-            {
-                resBody.AppendLine(Environment.GetEnvironmentVariable("resultbodyfinal"));
-            }
+                string strBody = Environment.GetEnvironmentVariable("resultbody") ?? "";
+                StringBuilder mailBody = new StringBuilder("");
 
-            if (Environment.GetEnvironmentVariable("failFlag").ToString() == "yes")
-            {
-                resBody.AppendLine("<div class=\"gs\">");
-                resBody.AppendLine("<div class=\"g\">");
-                resBody.AppendLine("<div class=\"g-h failed\">" + currTestName + "</div>");
-                resBody.AppendLine("<div class=\"g-c\">");
-                resBody.AppendLine("<div class=\"g\">");
-                resBody.AppendLine(contents + "</div></div>");
-                mailBody.AppendLine(@"<p><font face=Verdana size=2>" + currTestName + ": <b><font face=Verdana size=2 color=#FF0000>FAIL</font></b></p>");
+                if (string.IsNullOrEmpty(strBody))
+                {
+                    mailBody.AppendLine("<html>");
+                    mailBody.AppendLine("<body>");
+                    mailBody.AppendLine("<p><font color=#000080 size=4>Automation Test Result Status :</font></p>");
+                    Environment.SetEnvironmentVariable("resultbody", mailBody.ToString());
+                }
+                else
+                {
+                    mailBody.AppendLine(strBody);
+                }
 
-                Environment.SetEnvironmentVariable("resultbody", mailBody.ToString());
-                Environment.SetEnvironmentVariable("OverAllfailFlag", "yes");
+                StringBuilder resBody = new StringBuilder();
+                bool failed = string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase);
+
+                if (failed)
+                {
+                    resBody.AppendLine("<div class=\"gs\">");
+                    resBody.AppendLine("<div class=\"g\">");
+                    resBody.AppendLine("<div class=\"g-h failed\">" + currTestName + "</div>");
+                    resBody.AppendLine("<div class=\"g-c\">");
+                    resBody.AppendLine("<div class=\"g\">");
+                    resBody.AppendLine(contents + "</div></div>");
+                    mailBody.AppendLine(@"<p><font face=Verdana size=2>" + currTestName + ": <b><font face=Verdana size=2 color=#FF0000>FAIL</font></b></p>");
+                    Environment.SetEnvironmentVariable("resultbody", mailBody.ToString());
+                    Environment.SetEnvironmentVariable("OverallFailFlag", "yes");
+                }
+                else
+                {
+                    resBody.AppendLine("<div class=\"gs\">");
+                    resBody.AppendLine("<div class=\"g\">");
+                    resBody.AppendLine("<div class=\"g-h passed\">" + currTestName + "</div>");
+                    resBody.AppendLine("<div class=\"g-c\">");
+                    resBody.AppendLine("<div class=\"g\">");
+                    resBody.AppendLine(contents + "</div></div>");
+                    mailBody.AppendLine(@"<p><font face=Verdana size=2>" + currTestName + ": <b><font face=Verdana size=2 color=#008000>PASS</font></b></p>");
+                    Environment.SetEnvironmentVariable("resultbody", mailBody.ToString());
+                }
+
+                Environment.SetEnvironmentVariable("resultbodyfinal", (Environment.GetEnvironmentVariable("resultbodyfinal") ?? "") + resBody.ToString());
+
+                string accumulatorPath = Environment.GetEnvironmentVariable("resultAccumulatorPath")
+                    ?? Path.Combine(DirectoryUtils.BaseDirectory, "ResultBodyAccumulator.txt");
+                try
+                {
+                    File.AppendAllText(accumulatorPath, resBody.ToString(), Encoding.UTF8);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("setCleanUpValues: Could not append to accumulator: " + ex.Message);
+                }
             }
-            else
-            {
-                resBody.AppendLine("<div class=\"gs\">");
-                resBody.AppendLine("<div class=\"g\">");
-                resBody.AppendLine("<div class=\"g-h passed\">" + currTestName + "</div>");
-                resBody.AppendLine("<div class=\"g-c\">");
-                resBody.AppendLine("<div class=\"g\">");
-                resBody.AppendLine(contents + "</div></div>");
-                mailBody.AppendLine(@"<p><font face=Verdana size=2>" + currTestName + ": <b><font face=Verdana size=2 color=#008000>PASS</font></b></p>");
-
-                Environment.SetEnvironmentVariable("resultbody", mailBody.ToString());
-
-            }
-            Environment.SetEnvironmentVariable("resultbodyfinal", resBody.ToString());
         }
 
         public static SmtpClient SetMailServer(string StrSMTPHost, bool UseDefaultCred, int SMTPPort=0,string UserName="",string Password="")

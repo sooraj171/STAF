@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Local framework test project (validates STAF functions; do not check in)
+STAF.Tests/
