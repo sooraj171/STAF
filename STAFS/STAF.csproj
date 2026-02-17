@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <PackageId>STAF.UI.API</PackageId>
     <Authors>Sooraj Ramachandran</Authors>
     <Product>STAF</Product>
@@ -13,11 +13,12 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Selenium, Framework, API, UI Tests, API Tests, Excel</PackageTags>
-    <PackageReleaseNotes>UI and API test framework for Selenium.
+    <PackageReleaseNotes>This release targets .NET 10. Underlying projects consuming STAF.UI.API must use .NET 10 or above.
+UI and API test framework for Selenium.
 Supports Chrome, Edge &amp; Remote Drivers.
-      Supports Parallel execution and is thread safe.
-      Click the repository link to setup and get started quickly with a sample project.
-      https://github.com/sooraj171/STAF.Selenium.Tests
+Supports Parallel execution and is thread safe.
+Click the repository link to setup and get started quickly with a sample project.
+https://github.com/sooraj171/STAF.Selenium.Tests
     </PackageReleaseNotes>
     <RepositoryUrl>https://github.com/sooraj171/STAF.Selenium.Tests</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
