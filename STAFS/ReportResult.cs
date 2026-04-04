@@ -8,13 +8,13 @@ namespace STAF.CF
     {
         public static void ReportResultStatus(IWebDriver driver, TestContext context, string moduleName, string description, string result, string exception = "")
         {
-            string testName = Environment.GetEnvironmentVariable(context.TestName) ?? string.Empty;
+            string resultHtmlPath = TestRunState.GetResultHtmlPath(context);
 
             try
             {
-                if (!string.IsNullOrEmpty(testName))
+                if (!string.IsNullOrEmpty(resultHtmlPath))
                 {
-                    HtmlResult.TC_ResultCreation(driver, testName, moduleName, description, result, "");
+                    HtmlResult.TC_ResultCreation(driver, resultHtmlPath, moduleName, description, result, "");
                 }
             }
             catch (Exception ex)
@@ -41,13 +41,13 @@ namespace STAF.CF
     {
         public static void ReportResultStatus(TestContext context, string moduleName, string description, string result, string exception = "")
         {
-            string testName = Environment.GetEnvironmentVariable(context.TestName) ?? string.Empty;
+            string resultHtmlPath = TestRunState.GetResultHtmlPath(context);
 
             try
             {
-                if (!string.IsNullOrEmpty(testName))
+                if (!string.IsNullOrEmpty(resultHtmlPath))
                 {
-                    HtmlResult.TC_ResultCreation(testName, moduleName, description, result, "");
+                    HtmlResult.TC_ResultCreation(resultHtmlPath, moduleName, description, result, "");
                 }
             }
             catch (Exception ex)

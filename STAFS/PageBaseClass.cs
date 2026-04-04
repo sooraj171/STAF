@@ -87,20 +87,16 @@ namespace STAF.CF
 
         private IWebElement waitforelement(IWebElement parentElement, By by)
         {
-            int cnt = 10 * 5;
-            for (int iCnt = 0; iCnt < cnt; iCnt++)
+            int maxIterations = 10 * 5;
+            for (int iCnt = 0; iCnt < maxIterations; iCnt++)
             {
                 System.Threading.Thread.Sleep(200);
                 if (ElementExists(parentElement, by))
                 {
                     return parentElement.FindElement(by);
                 }
-                else
-                {
-                    return null;
-                }
-
             }
+
             return null;
         }
 

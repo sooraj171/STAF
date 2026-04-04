@@ -43,7 +43,7 @@ namespace STAF.CF
 
             CommonAction.setCleanUpValues(currResultFile, TestContext, totTime);
 
-            if (string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase))
+            if (TestRunState.IsFailed())
             {
                 Assert.Fail();
             }

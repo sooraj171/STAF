@@ -30,11 +30,11 @@ namespace STAF.CF
             currTestName = TestContext.TestName;
             currResultFile = CommonAction.setStartUpValues(TestContext);
 
-            // Safer retrieval of TestContext properties
-            string brwType = TestContext.Properties.ToString().Contains("browser") ? TestContext.Properties["browser"].ToString() : "chrome";
-            string driverPath = TestContext.Properties.ToString().Contains("driverPath") ? TestContext.Properties["driverPath"].ToString() : "";
+            string brwType = TestContextPropertyHelper.GetString(TestContext, "browser", "chrome");
+            string driverPath = TestContextPropertyHelper.GetString(TestContext, "driverPath", "");
+            bool headless = TestContextPropertyHelper.GetBool(TestContext, "headless", false);
 
-            driver = GetBrowserDriverObject(brwType, driverPath);
+            driver = GetBrowserDriverObject(brwType, driverPath, false, headless);
         }
 
 
@@ -53,11 +53,19 @@ namespace STAF.CF
             {
                 Console.WriteLine($"Error during cleanup: {ex.Message}");
             }
+            finally
+            {
+                try
+                {
+                    driver?.Quit();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error quitting WebDriver: {ex.Message}");
+                }
+            }
 
-            driver.Quit();
-
-            // Null-safe check for environment variable
-            if (string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase))
+            if (TestRunState.IsFailed())
             {
                 Assert.Fail();
             }

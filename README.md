@@ -12,16 +12,40 @@
 
 ---
 
-## Sample Project & MCP Agent
+## Table of Contents
 
-**[STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests)** is the official template and reference implementation for STAF. It includes:
+- [AI-assisted development and MCP (implementation repo)](#ai-assisted-development-and-mcp-implementation-repo)
+- [Overview](#overview)
+- [Features](#features)
+- [Key Components](#key-components)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Reporting](#reporting)
+- [Parallel execution and thread safety](#parallel-execution-and-thread-safety)
+- [Upgrading and migration](#upgrading-and-migration)
+- [Usage Guide](#usage-guide)
+- [License](#license)
 
-- **Working samples** for every major STAF feature (UI, API, Excel, Database, Accessibility)
-- **MCP Agent** - Model Context Protocol server for Selenium + STAF. Use with **Cursor**, **VS Code**, or **Visual Studio** to:
-  - **Control browsers** - Start Chrome/Edge/Firefox, navigate, click, type, take screenshots
-  - **Generate STAF code** - Produce C# Selenium tests (Page Object Model, ReportResult, TestBaseClass) from natural language
+---
 
-Get started with the framework quickly by cloning the template:
+## AI-assisted development and MCP (implementation repo)
+
+**This repository** contains the **STAF.UI.API** framework source and ships the NuGet package. It does **not** include the MCP server executable or editor-specific AI configuration—those live in the official **implementation / sample** repository so you can pair the package with real projects and tooling.
+
+**Use this together with the implementation project:**
+
+| Piece | Where it lives |
+|-------|----------------|
+| **STAF.UI.API** NuGet package | This repo / [NuGet.org](https://www.nuget.org/packages/STAF.UI.API) — add it to any .NET 10+ test project |
+| **Sample solution, MCP server, and AI workflows** | **[STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests)** on GitHub |
+
+**[STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests)** is the official template that **references STAF.UI.API** and adds:
+
+- **MCP (Model Context Protocol) server** for Selenium + STAF — a self-contained agent you can attach to **Cursor**, **VS Code**, or **Visual Studio** (Copilot agent mode) to drive browsers and generate tests from natural language.
+- **Editor rules** — e.g. `.cursor/rules`, `.github/copilot-instructions.md`, and repo-level `.mcp.json` so assistants follow STAF patterns (`TestBaseClass`, `FindAppElement`, `ReportResult`, etc.).
+- **Working samples** for UI, API, Excel, database, reporting, accessibility, and parallel runs.
+
+Clone the implementation repo to run MCP, copy its config into your own solution, or start new suites from the template while keeping **STAF.UI.API** as the shared framework dependency:
 
 ```bash
 git clone https://github.com/sooraj171/STAF.Selenium.Tests
@@ -30,20 +54,7 @@ dotnet restore
 dotnet build
 ```
 
-See the [STAF.Selenium.Tests repository](https://github.com/sooraj171/STAF.Selenium.Tests) for setup, MCP configuration, and sample tests.
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Key Components](#key-components)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Reporting](#reporting)
-- [Usage Guide](#usage-guide)
-- [License](#license)
+For MCP setup (paths to `MCPAgent/publish/...`, tool list, troubleshooting), see **MCPAgent/README.md** and the main README in [STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests).
 
 ---
 
@@ -56,10 +67,11 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 | **UI automation** | Page Object Model-style tests with Selenium (Chrome, Edge, local or remote) |
 | **API automation** | REST-style tests with the same reporting and lifecycle as UI tests |
 | **HTML reporting** | Per-test and assembly-level HTML reports with pass/fail summary and optional screenshots |
-| **Parallel execution** | Thread-safe reporting and MSTest parallelization (method-level, configurable workers) |
+| **Parallel execution** | Per-test `AsyncLocal` state, per-report-file locking, file-based assembly accumulator; MSTest parallelization (method-level, configurable workers) |
 | **Excel** | Compare workbooks/sheets and read/write cell data via ClosedXML |
 | **Database** | SQL Server helpers (connection, query, scalar, non-query) using configuration |
 | **Accessibility** | Axe-core (Deque.AxeCore.Selenium) integration for accessibility scans and HTML reports |
+| **AI / MCP (optional)** | Not in this repo — use **[STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests)** with this NuGet package for an MCP server and Cursor / Copilot integration |
 
 ---
 
@@ -70,13 +82,14 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 | **Base classes** | `TestBaseClass` (UI), `TestBaseAPI` (API), `PageBaseClass` (elements and waits) |
 | **Browser support** | Chrome, Edge; local or remote WebDriver. Overridable options and driver creation |
 | **HTML reporting** | In-test step reporting (Pass/Fail/Warn/Info) and assembly summary (`ResultTemplateFinal.html`) |
-| **Parallel execution** | Parallel-safe result accumulation; MSTest `Parallelize` (e.g. 4 workers, method scope) |
+| **Parallel execution** | Parallel-safe paths and fail flags (`AsyncLocal`); per-file HTML locks; MSTest `Parallelize` (e.g. 4 workers, method scope) |
 | **Excel** | Compare two workbooks/sheets; get/set cell data; row/column counts |
 | **Database** | `DbHelper`: connection strings from config, execute query/scalar/non-query |
-| **Configuration** | `appsettings.json` and run settings (browser, driver path, URL, test parameters) |
+| **Configuration** | `appsettings.json` (resolved from base directory, assembly folder, or cwd) and run settings (browser, headless, driver path, URL, test parameters) |
 | **Email** | Optional email of test results (SMTP via config or TestContext) |
 | **Accessibility** | Axe-core page/element scans and styled HTML reports |
-| **Report generator** | Programmatic HTML reports via `TestReportGenerator` and `TestResultData` |
+| **Report generator** | `TestReportGenerator.GenerateTestReport(filePath, TestResultData)` for programmatic HTML (plus sidecar CSS/JS) |
+| **AI-assisted authoring** | Implemented in **[STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests)** via MCP + editor rules; consumes **STAF.UI.API** like any other test project |
 
 ---
 
@@ -94,7 +107,7 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 
 | Class | Purpose |
 |-------|---------|
-| **BrowserDriver** | Creates `IWebDriver` for Chrome or Edge, local or remote. Override `SetChromeOptions()` / `SetEdgeOptions()` or `GetBrowserDriverObject()` to customize |
+| **BrowserDriver** | Creates `IWebDriver` for Chrome or Edge, local or remote. Override parameterless `SetChromeOptions()` / `SetEdgeOptions()` for custom arguments; optional `headless` runsetting applies headless flags after your options |
 
 ### Reporting
 
@@ -114,7 +127,7 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 | **waitForFindElement** | Find element with explicit timeout |
 | **waitForElementExist** / **waitForElementNotExist** | Wait for element presence/absence |
 | **WaitForElementDisapper** | Wait until element is no longer present (By) |
-| **WaitForDocumentReady** | Wait for document ready and (if present) jQuery idle |
+| **WaitForDocumentReady** | Wait for document ready and (if present) jQuery idle (default timeout 30 seconds; optional `timeoutSeconds` parameter) |
 
 ### Excel, Database & Accessibility
 
@@ -141,7 +154,7 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
    ```bash
    dotnet add package STAF.UI.API
    ```
-   Or use the [sample project template](https://github.com/sooraj171/STAF.Selenium.Tests) for a complete setup with examples.
+   Or use the [STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests) implementation project for samples, runsettings, and optional **MCP / AI** tooling (see [AI-assisted development and MCP](#ai-assisted-development-and-mcp-implementation-repo)).
 
 2. Configure run settings: **Test** > **Configure Run Settings** > **Select Solution Wide runsettings File** > choose `testrunsetting.runsettings`.
 
@@ -175,10 +188,14 @@ public void TestAPIStatus()
 ### Run settings (`testrunsetting.runsettings`)
 
 - **TestRunParameters**: `browser` (e.g. `chrome`), `driverPath`, `url`, optional email/smtp settings
+- **`headless`**: set to `true` for CI/agents (Chrome/Edge headless is applied after your `SetChromeOptions` / `SetEdgeOptions` overrides)
+- **`killOrphanChromedrivers`**: default `false`. Set to `true` only on **isolated** agents if you still need assembly-level cleanup that terminates **all** `chromedriver` processes (avoid on shared build machines)
 - **MSTest**: `Parallelize` (e.g. `Workers=4`, `Scope=MethodLevel`)
 - **ResultsDirectory**: e.g. `.\TestResults`
 
 ### appsettings.json
+
+`AppConfig.GetConfig()` looks for `appsettings.json` in this order: **`AppContext.BaseDirectory`**, the **executing assembly directory**, then **`Directory.GetCurrentDirectory()`**. The first match wins.
 
 - **ConnectionStrings**: e.g. `DefaultConnection` for `DbHelper`
 - **Email**: SmtpHost, SmtpPort, UseDefaultCred, Username, Password (optional)
@@ -193,6 +210,8 @@ protected override ChromeOptions SetChromeOptions()
     return options;
 }
 ```
+
+Use runsetting **`headless=true`** for pipelines; the framework adds headless arguments **after** this method runs, so existing overrides stay valid.
 
 ---
 
@@ -217,7 +236,39 @@ element.ReportElementIsDisplayed(driver, TestContext, testName, "Element is disp
 
 ### Assembly summary
 
-After all tests, **AssemblyCleanup** writes the combined result body to **ResultTemplate.html** and copies it to **ResultTemplateFinal.html**. Reporting is parallel-safe (file-based accumulator).
+After all tests, **AssemblyCleanup** merges per-test HTML fragments using a **file-based accumulator**, appends them to **ResultTemplate.html**, and copies the outcome to **ResultTemplateFinal.html** next to the test run output. Those files are created under **`TestContext.TestRunDirectory`** when the test host provides it (typical under **TestResults**); otherwise the framework falls back to the test assembly base directory.
+
+Fail screenshots are written next to the **per-test HTML report** with unique names; the report still embeds them as **base64** for the same in-browser experience as before.
+
+### Programmatic HTML (`TestReportGenerator`)
+
+```csharp
+TestReportGenerator.GenerateTestReport(@"C:\out\my_report.html", myTestResultData);
+```
+
+Use a **unique `filePath`** when multiple processes or tools might generate reports at the same time.
+
+---
+
+## Parallel execution and thread safety
+
+- **Per-test state** (result HTML path, failure flag) uses **`AsyncLocal`** so parallel MSTest workers do not overwrite each other. The framework still mirrors **`failFlag`** and per-test path keys to **environment variables** for backward compatibility in sequential runs.
+- **HTML append** uses a **lock per report file path**, not one global lock, so different tests can write their own reports concurrently.
+- **`ReportResult` / `ReportResultAPI`** resolve the report file via the active test context first, then fall back to **`Environment.GetEnvironmentVariable(TestContext.TestName)`** if you use a custom startup path.
+
+---
+
+## Upgrading and migration
+
+When updating from older STAF.UI.API builds, check the following:
+
+| Topic | What changed |
+|--------|----------------|
+| **ChromeDriver cleanup** | Killing every `chromedriver` process at assembly start/end is **off by default**. Set **`killOrphanChromedrivers=true`** in runsettings only if you need the old behavior on a dedicated agent. |
+| **Aggregate report location** | **ResultTemplate.html**, **ResultBodyAccumulator.txt**, and the merged **ResultTemplateFinal.html** path are rooted in **`TestRunDirectory`** when available. Pipelines or scripts that assumed **`bin\Debug\...`** only should publish **`TestResults`** (or your configured **ResultsDirectory**) instead. |
+| **Headless CI** | Prefer **`headless=true`** in runsettings rather than only custom options. |
+| **`TestReportGenerator`** | Use the public **`GenerateTestReport(string filePath, TestResultData results)`** API; avoid hard-coding a shared filename like `test_report.html` when running in parallel. |
+| **Public API** | Existing entry points (**`TestBaseClass`**, **`TestBaseAPI`**, **`CommonAction.setStartUpValues` / `setCleanUpValues`**, **`ReportResult`**, **`HtmlResult`**, parameterless **`SetChromeOptions` / `SetEdgeOptions`**) are preserved for consuming projects. |
 
 ---
 
@@ -264,6 +315,6 @@ This project is licensed under the **MIT License**.
 | Links |
 |-------|
 | **NuGet:** [STAF.UI.API](https://www.nuget.org/packages/STAF.UI.API) |
-| **Sample project & MCP Agent:** [STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests) |
+| **Implementation project, samples & MCP (AI):** [STAF.Selenium.Tests](https://github.com/sooraj171/STAF.Selenium.Tests) |
 
 *This software is provided "as is", without warranty of any kind. See the [license](LICENSE) for full terms.*

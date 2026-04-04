@@ -38,6 +38,9 @@
     <Parameter name="mailfrom" value="test@test.com" />
     <Parameter name="smtphost" value="test@test.com" />
     <Parameter name="smtpport" value="test@test.com" />
+    <!-- headless=true for CI agents; killOrphanChromedrivers=true only on isolated agents (kills all chromedriver processes) -->
+    <Parameter name="headless" value="false" />
+    <Parameter name="killOrphanChromedrivers" value="false" />
   </TestRunParameters>
 
   <!-- Configuration for loggers -->

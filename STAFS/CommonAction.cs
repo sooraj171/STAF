@@ -157,10 +157,8 @@ namespace STAF.CF
             string resultFile = "";
             try
             {
-                Environment.SetEnvironmentVariable("currTestName", currTestName.TestName);
-                resultFile = currTestName.TestRunDirectory + "\\" + currTestName.TestName + ".html"; // Updated to use TestRunDirectory
-                Environment.SetEnvironmentVariable(currTestName.TestName, resultFile);
-                Environment.SetEnvironmentVariable("failFlag", "no");
+                resultFile = Path.Combine(currTestName.TestRunDirectory, currTestName.TestName + ".html");
+                TestRunState.BeginTest(currTestName, resultFile);
                 string StrProject = currTestName.Properties["project"] == null ? "TestSteps" : "TestSteps:" + currTestName.Properties["project"].ToString();
                 HtmlResult.TC_ResultStartTime(StrProject, currTestName.TestName, currTestName.TestRunDirectory); // Updated to use TestRunDirectory
                 // System.IO.File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", currTestName.TestRunDirectory + @"\ResultTemplate.html"); // Updated to use TestRunDirectory
@@ -200,7 +198,7 @@ namespace STAF.CF
                 }
 
                 StringBuilder resBody = new StringBuilder();
-                bool failed = string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase);
+                bool failed = TestRunState.IsFailed();
 
                 if (failed)
                 {
@@ -239,6 +237,8 @@ namespace STAF.CF
                     Console.WriteLine("setCleanUpValues: Could not append to accumulator: " + ex.Message);
                 }
             }
+
+            TestRunState.Clear();
         }
 
         public static SmtpClient SetMailServer(string StrSMTPHost, bool UseDefaultCred, int SMTPPort=0,string UserName="",string Password="")
@@ -321,40 +321,62 @@ namespace STAF.CF
 
         public static bool waitForElementExist(this IWebDriver driver, IWebElement elmObject, int timeoutInSeconds)
         {
-            bool res = false;
-            if (timeoutInSeconds > 0)
+            if (elmObject == null || timeoutInSeconds <= 0)
+                return false;
+            try
             {
-                WebDriverWait wttest = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
-                var tbObj = wttest.Until(d =>
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                return wait.Until(_ =>
                 {
-                    if (elmObject != null)
+                    try
                     {
-                        return true;
+                        return elmObject.Displayed;
                     }
-                    else { return false; }
-                }
-                  );
+                    catch (StaleElementReferenceException)
+                    {
+                        return false;
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        return false;
+                    }
+                });
             }
-            return res;
+            catch (WebDriverTimeoutException)
+            {
+                return false;
+            }
         }
 
         public static bool waitForElementNotExist(this IWebDriver driver, IWebElement elmObject, int timeoutInSeconds)
         {
-            if (timeoutInSeconds > 0)
+            if (elmObject == null)
+                return true;
+            if (timeoutInSeconds <= 0)
+                return true;
+            try
             {
-                WebDriverWait wttest = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
-
-                var tbObj = wttest.Until(d =>
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                return wait.Until(_ =>
                 {
-                    if (elmObject != null)
+                    try
+                    {
+                        return !elmObject.Displayed;
+                    }
+                    catch (StaleElementReferenceException)
                     {
                         return true;
                     }
-                    else { return false; }
-                }
-                  );
+                    catch (NoSuchElementException)
+                    {
+                        return true;
+                    }
+                });
             }
-            return true;
+            catch (WebDriverTimeoutException)
+            {
+                return false;
+            }
         }
 
         public static bool WaitForElementDisapper(IWebDriver driver, By element, int timeoutInSeconds)
@@ -407,30 +429,26 @@ namespace STAF.CF
         /// </summary>
         /// <param name="driver"></param>
         /// <returns>true</returns>
-        public static bool WaitForDocumentReady(this IWebDriver driver)
+        public static bool WaitForDocumentReady(this IWebDriver driver, int timeoutSeconds = 30)
         {
-            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+            if (driver == null)
+                return false;
+            var jse = (IJavaScriptExecutor)driver;
             try
             {
-                var wait = new WebDriverWait(driver, TimeSpan.FromMilliseconds(10));
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutSeconds));
 
-                //int cnt = 0;
-                bool retFlag = false;
                 if ((bool)jse.ExecuteScript("return window.jQuery != undefined"))
                 {
-
-                    wait.Until(d => (bool)jse.ExecuteScript("return jQuery.active == 0"));
-
-                    wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
-                    retFlag = true;
+                    wait.Until(_ => (bool)jse.ExecuteScript("return jQuery.active == 0"));
+                    wait.Until(_ => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
                 }
                 else
                 {
-                    wait.Until(d => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
-                    retFlag = true;
+                    wait.Until(_ => (bool)jse.ExecuteScript("return document.readyState == 'complete'"));
                 }
 
-                return retFlag;
+                return true;
             }
             catch (Exception)
             {

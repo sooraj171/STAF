@@ -3,13 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace STAF
 {
     public class TestReportGenerator
     {
-        private static void GenerateTestReport(string filePath, TestResultData results)
+        /// <summary>
+        /// Writes the HTML report (and sidecar .css / .js) to the given path. Safe for parallel runs when each caller uses a unique <paramref name="filePath"/>.
+        /// </summary>
+        public static void GenerateTestReport(string filePath, TestResultData results)
+        {
+            WriteHtmlReportFiles(filePath, results);
+        }
+
+        private static void WriteHtmlReportFiles(string filePath, TestResultData results)
         {
             try
             {
@@ -326,9 +333,10 @@ namespace STAF
                 }
             };
 
-            // Generate the report
-            string reportFilePath = "test_report.html";
-            GenerateTestReport(reportFilePath, results);
+            string reportFilePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                $"test_report_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}.html");
+            WriteHtmlReportFiles(reportFilePath, results);
             Console.WriteLine($"Report generated successfully at {reportFilePath}");
         }
     }
