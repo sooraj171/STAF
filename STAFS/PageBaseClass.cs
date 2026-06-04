@@ -2,7 +2,6 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
-using SeleniumExtras.WaitHelpers;
 
 namespace STAF.CF
 {
@@ -28,7 +27,7 @@ namespace STAF.CF
         {
             try
             {
-                _currElm = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ExpectedConditions.ElementExists(Expression));
+                _currElm = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ElementExists(Expression));
                 ReportResult.ReportResultPass(Driver, context, Expression.ToString(), "Element is present");
             }
             catch
@@ -51,7 +50,7 @@ namespace STAF.CF
         {
             try
             {
-                _currElmParan = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ExpectedConditions.ElementExists(Expression));
+                _currElmParan = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ElementExists(Expression));
                 ReportResult.ReportResultPass(Driver, context, strObjectDetails, "Element is present");
             }
             catch
@@ -112,6 +111,19 @@ namespace STAF.CF
                 return false;
             }
         }
+
+        private static Func<IWebDriver, IWebElement> ElementExists(By locator) =>
+            driver =>
+            {
+                try
+                {
+                    return driver.FindElement(locator);
+                }
+                catch (NoSuchElementException)
+                {
+                    return null;
+                }
+            };
     }
 
 }
