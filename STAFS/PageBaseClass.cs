@@ -27,7 +27,7 @@ namespace STAF.CF
         {
             try
             {
-                _currElm = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ElementExists(Expression));
+                _currElm = Driver.waitForFindElement(Expression, 10);
                 ReportResult.ReportResultPass(Driver, context, Expression.ToString(), "Element is present");
             }
             catch
@@ -50,7 +50,7 @@ namespace STAF.CF
         {
             try
             {
-                _currElmParan = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ElementExists(Expression));
+                _currElmParan = Driver.waitForFindElement(Expression, 10);
                 ReportResult.ReportResultPass(Driver, context, strObjectDetails, "Element is present");
             }
             catch
@@ -73,7 +73,8 @@ namespace STAF.CF
         {
             try
             {
-                _currElmPara = waitforelement(parentElement, Expression);
+                var wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
+                _currElmPara = wait.Until(SeleniumWaitConditions.ElementExists(parentElement, Expression));
                 ReportResult.ReportResultPass(Driver, context, strObjectDetails, "Element is present");
             }
             catch
@@ -83,47 +84,6 @@ namespace STAF.CF
             }
             return _currElmPara;
         }
-
-        private IWebElement waitforelement(IWebElement parentElement, By by)
-        {
-            int maxIterations = 10 * 5;
-            for (int iCnt = 0; iCnt < maxIterations; iCnt++)
-            {
-                System.Threading.Thread.Sleep(200);
-                if (ElementExists(parentElement, by))
-                {
-                    return parentElement.FindElement(by);
-                }
-            }
-
-            return null;
-        }
-
-        private bool ElementExists(IWebElement parentElement, By by)
-        {
-            try
-            {
-                parentElement.FindElement(by);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        private static Func<IWebDriver, IWebElement> ElementExists(By locator) =>
-            driver =>
-            {
-                try
-                {
-                    return driver.FindElement(locator);
-                }
-                catch (NoSuchElementException)
-                {
-                    return null;
-                }
-            };
     }
 
 }

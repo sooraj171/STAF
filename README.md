@@ -124,7 +124,8 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 |--------|---------|
 | **CloseAllTabsExceptCurrent** | Close all browser tabs except the current one |
 | **getTotalTabsCount** | Return number of open tabs |
-| **waitForFindElement** | Find element with explicit timeout |
+| **waitForFindElement** | Find element with explicit timeout (uses `SeleniumWaitConditions.ElementExists`) |
+| **SeleniumWaitConditions** | Selenium 4 wait predicates for `WebDriverWait` (replaces legacy `ExpectedConditions` / WaitHelpers) |
 | **waitForElementExist** / **waitForElementNotExist** | Wait for element presence/absence |
 | **WaitForElementDisapper** | Wait until element is no longer present (By) |
 | **WaitForDocumentReady** | Wait for document ready and (if present) jQuery idle (default timeout 30 seconds; optional `timeoutSeconds` parameter) |
