@@ -13,7 +13,7 @@ namespace STAF.CF
         // Create a new driver instance based on the browser type (with automatic driver management in Selenium 4)
         public IWebDriver CreateDriverInstance(string brwType)
         {
-            driver = GetWebDriver(brwType, string.Empty, false);
+            driver = GetWebDriver(brwType, string.Empty, false, false);
             return driver;
         }
 
@@ -25,7 +25,7 @@ namespace STAF.CF
         }
         public IWebDriver BrowserDriverObject(string brwType)
         {
-            driver = GetWebDriver(brwType, AppDomain.CurrentDomain.BaseDirectory,false);
+            driver = GetWebDriver(brwType, AppDomain.CurrentDomain.BaseDirectory, false, false);
             return driver;
         }
 
@@ -41,10 +41,10 @@ namespace STAF.CF
         /// <param name="driverPath">Driver Path if running locally; Remote Hub Url if using Hub</param>
         /// <param name="isRemote">To set thre remote driver for Hub set it to true; default is false</param>
         /// <returns></returns>
-        public virtual IWebDriver GetBrowserDriverObject(string brwType, string driverPath="", bool isRemote = false)
+        public virtual IWebDriver GetBrowserDriverObject(string brwType, string driverPath = "", bool isRemote = false, bool headless = false)
         {
             driverPath = driverPath.Trim() == "" ? AppDomain.CurrentDomain.BaseDirectory : driverPath;
-            driver = GetWebDriver(brwType,driverPath, isRemote);
+            driver = GetWebDriver(brwType, driverPath, isRemote, headless);
             return driver;
         }
 
@@ -81,7 +81,7 @@ namespace STAF.CF
         /// Getting the WebDriver object for the test run. 
         /// Supports local and remote drivers based on the isRemote flag.
         /// </summary>
-        private IWebDriver GetWebDriver(string brwType, string driverPath = "", bool isRemote = false)
+        private IWebDriver GetWebDriver(string brwType, string driverPath = "", bool isRemote = false, bool headless = false)
         {
             if (string.IsNullOrWhiteSpace(driverPath))
             {
@@ -92,16 +92,24 @@ namespace STAF.CF
             switch (brwType)
             {
                 case "chrome":
-                    driver = isRemote
-                        ? new RemoteWebDriver(new Uri(driverPath), SetChromeOptions())
-                        : new ChromeDriver(SetChromeOptions());
-                    break;
+                    {
+                        ChromeOptions chromeOpts = SetChromeOptions();
+                        ApplyChromeHeadless(chromeOpts, headless);
+                        driver = isRemote
+                            ? new RemoteWebDriver(new Uri(driverPath), chromeOpts)
+                            : new ChromeDriver(chromeOpts);
+                        break;
+                    }
 
                 case "edge":
-                    driver = isRemote
-                        ? new RemoteWebDriver(new Uri(driverPath), SetEdgeOptions())
-                        : new EdgeDriver(SetEdgeOptions());
-                    break;
+                    {
+                        EdgeOptions edgeOpts = SetEdgeOptions();
+                        ApplyEdgeHeadless(edgeOpts, headless);
+                        driver = isRemote
+                            ? new RemoteWebDriver(new Uri(driverPath), edgeOpts)
+                            : new EdgeDriver(edgeOpts);
+                        break;
+                    }
 
                 default:
                     throw new ArgumentException($"Unsupported browser type: {brwType}", nameof(brwType));
@@ -110,17 +118,34 @@ namespace STAF.CF
             return driver;
         }
 
+        /// <summary>Override to customize Chrome; headless is applied afterward when requested via runsettings.</summary>
         protected virtual ChromeOptions SetChromeOptions()
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArguments("start-maximized");
             return options;
         }
+
+        /// <summary>Override to customize Edge; headless is applied afterward when requested via runsettings.</summary>
         protected virtual EdgeOptions SetEdgeOptions()
         {
             EdgeOptions options = new EdgeOptions();
             options.AddArguments("start-maximized");
             return options;
+        }
+
+        private static void ApplyChromeHeadless(ChromeOptions options, bool headless)
+        {
+            if (!headless || options == null)
+                return;
+            options.AddArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--window-size=1920,1080");
+        }
+
+        private static void ApplyEdgeHeadless(EdgeOptions options, bool headless)
+        {
+            if (!headless || options == null)
+                return;
+            options.AddArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--window-size=1920,1080");
         }
     }
 }

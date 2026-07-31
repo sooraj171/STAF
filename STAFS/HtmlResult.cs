@@ -1,31 +1,49 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 
 namespace STAF.CF
 {
     public class HtmlResult
     {
-        private static readonly object fileLock = new object();
-        private static readonly object fileLockAPI = new object();
+        private static readonly ConcurrentDictionary<string, object> FileLocks = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        private static object GetLockForPath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return FileLocks.GetOrAdd("_empty_", _ => new object());
+            try
+            {
+                string full = Path.GetFullPath(path);
+                return FileLocks.GetOrAdd(full, _ => new object());
+            }
+            catch
+            {
+                return FileLocks.GetOrAdd(path, _ => new object());
+            }
+        }
+
         public static void TC_ResultStartTime(string strProject, string strFileName, string RelativePath)
         {
-            DateTime now = DateTime.Now;
-            strFileName = RelativePath + "\\" + strFileName + ".html";
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFileName, FileMode.Create, FileAccess.Write, FileShare.ReadWrite));
-            if (streamWriter == null)
-                return;
-            streamWriter = BuildHtmlString(streamWriter, strProject);
-            streamWriter.Flush();
-            streamWriter.Close();
+            string htmlPath = Path.Combine(RelativePath, strFileName + ".html");
+            lock (GetLockForPath(htmlPath))
+            {
+                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(htmlPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite)))
+                {
+                    BuildHtmlString(streamWriter, strProject);
+                    streamWriter.Flush();
+                }
+            }
         }
 
         public static void TC_ResultCreation(IWebDriver driver, string strFilename, string strModuleName, string strDesc, string strResult, string strLinkFile)
         {
-            lock (fileLock)
+            string htmlReportPath = strFilename;
+            lock (GetLockForPath(htmlReportPath))
             {
-                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
+                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(htmlReportPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
                 {
                     int num1 = 0;
                     if (strResult == "")
@@ -55,10 +73,13 @@ namespace STAF.CF
                         else if (strResult.ToLower() == "fail")
                         {
                             Screenshot image = ((ITakesScreenshot)driver).GetScreenshot();
-                            Environment.SetEnvironmentVariable("failFlag", "yes");
-                            strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
-                            strModuleName = strModuleName.Replace(":", "");
-                            strLinkFile = strFilename + "_" + strModuleName + "_" + DateTime.Now.ToString("MMddyyyymmss") + ".png";
+                            TestRunState.SetFailed();
+                            string screenshotDir = Path.GetDirectoryName(htmlReportPath);
+                            if (string.IsNullOrEmpty(screenshotDir))
+                                screenshotDir = Directory.GetCurrentDirectory();
+                            string moduleSafe = strModuleName.Replace(":", "").Replace(Path.DirectorySeparatorChar, '_').Replace(Path.AltDirectorySeparatorChar, '_');
+                            string pngName = Path.GetFileNameWithoutExtension(htmlReportPath) + "_" + moduleSafe + "_" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + Guid.NewGuid().ToString("N")[..8] + ".png";
+                            strLinkFile = Path.Combine(screenshotDir, pngName);
                             image.SaveAsFile(strLinkFile);
                             strLinkFile = "data:image/png;base64," + Convert.ToBase64String(File.ReadAllBytes(strLinkFile));
                             streamWriter.WriteLine("<p align=center><img class=\"screenshot\" src=\"" + strLinkFile + "\" class=\"img-circle\" width=\"304\" height=\"236\"/><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
@@ -83,9 +104,10 @@ namespace STAF.CF
 
         public static void TC_ResultCreation(string strFilename, string strModuleName, string strDesc, string strResult, string strLinkFile)
         {
-            lock (fileLock)
+            string htmlReportPath = strFilename;
+            lock (GetLockForPath(htmlReportPath))
             {
-                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
+                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(htmlReportPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
                 {
                     int num1 = 0;
                     if (strResult == "")
@@ -114,8 +136,7 @@ namespace STAF.CF
                             streamWriter.WriteLine("<p align=center><a href=\"" + strLinkFile + "\"><b><font face=Verdana size=2 color=#008000>" + strResult + "</font></b></a></td>");
                         else if (strResult.ToLower() == "fail")
                         {
-                            Environment.SetEnvironmentVariable("failFlag", "yes");
-                            strFilename = Environment.GetEnvironmentVariable("currTestName") == null ? "currTestName" : Environment.GetEnvironmentVariable("currTestName");
+                            TestRunState.SetFailed();
                             streamWriter.WriteLine("<p align=center><b><font face=Verdana size=2 color=#FF0000>" + strResult + "</font></b></td>");
                         }
                         else if (strResult.ToLower() == "warning")
@@ -137,20 +158,24 @@ namespace STAF.CF
 
         public static void TC_EndTime(string strFilename)
         {
-            StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
-            streamWriter.WriteLine("<tr>");
-            streamWriter.WriteLine("<td class='headBk' COLSPAN = 4>");
-            streamWriter.WriteLine("<p align=justify><b><font color=white size=2 face= Verdana>&nbsp;END TIME :&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");
-            streamWriter.WriteLine("</td>");
-            streamWriter.WriteLine("</tr>");
-            streamWriter.WriteLine("</table>");
-            streamWriter.WriteLine("</body>");
-            streamWriter.WriteLine("</html>");
-            streamWriter.Flush();
-            streamWriter.Close();
+            lock (GetLockForPath(strFilename))
+            {
+                using (StreamWriter streamWriter = new StreamWriter((Stream)File.Open(strFilename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
+                {
+                    streamWriter.WriteLine("<tr>");
+                    streamWriter.WriteLine("<td class='headBk' COLSPAN = 4>");
+                    streamWriter.WriteLine("<p align=justify><b><font color=white size=2 face= Verdana>&nbsp;END TIME :&nbsp;&nbsp;" + DateTime.Now.ToString("MM / dd / yyyy T hh : mm : ss") + "&nbsp");
+                    streamWriter.WriteLine("</td>");
+                    streamWriter.WriteLine("</tr>");
+                    streamWriter.WriteLine("</table>");
+                    streamWriter.WriteLine("</body>");
+                    streamWriter.WriteLine("</html>");
+                    streamWriter.Flush();
+                }
+            }
         }
 
-        private static StreamWriter BuildHtmlString(StreamWriter streamWriter, string strProject)
+        private static void BuildHtmlString(StreamWriter streamWriter, string strProject)
         {
             streamWriter.WriteLine("<html>");
             streamWriter.WriteLine("<head>");
@@ -187,7 +212,6 @@ namespace STAF.CF
             streamWriter.WriteLine("</blockquote>");
             streamWriter.WriteLine("</body>");
             streamWriter.WriteLine("</html>");
-            return streamWriter;
         }
     }
 

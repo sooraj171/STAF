@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Text;
-using STAF.CF;
 
 namespace STAF.CF
 {
@@ -17,32 +16,44 @@ namespace STAF.CF
         private static string MailTo = "";
         private static string MailFrom = "donotreply@test.com";
         private static TestContext _testContext;
+        private static bool _killOrphanChromedrivers;
 
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext tc)
         {
             try
             {
-                var driverProcess = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
                 _testContext = tc;
+                _killOrphanChromedrivers = TestContextPropertyHelper.GetBool(tc, "killOrphanChromedrivers", false);
 
-                foreach (var process in driverProcess)
+                if (_killOrphanChromedrivers)
                 {
-                    process.Kill();
+                    var driverProcess = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
+                    foreach (var process in driverProcess)
+                    {
+                        try
+                        {
+                            process.Kill();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("AssemblyInitialize: could not kill chromedriver process: " + ex.Message);
+                        }
+                    }
                 }
-                resTestDir = tc.TestRunDirectory;
-                string resultDir = tc.TestRunDirectory ?? DirectoryUtils.BaseDirectory;
-                resultFilePath = Path.Combine(DirectoryUtils.BaseDirectory, "ResultTemplate.html");
+
+                resTestDir = tc.TestRunDirectory ?? DirectoryUtils.BaseDirectory;
+                string resultDir = resTestDir;
+                resultFilePath = Path.Combine(resultDir, "ResultTemplate.html");
                 MakeAfile(resultFilePath);
 
-                // File-based accumulator for parallel execution (env var is overwritten by concurrent tests)
-                string accumulatorPath = Path.Combine(DirectoryUtils.BaseDirectory, "ResultBodyAccumulator.txt");
+                string accumulatorPath = Path.Combine(resultDir, "ResultBodyAccumulator.txt");
                 File.WriteAllText(accumulatorPath, string.Empty);
                 Environment.SetEnvironmentVariable("resultAccumulatorPath", accumulatorPath);
 
                 Environment.SetEnvironmentVariable("OverallFailFlag", "No");
                 Environment.SetEnvironmentVariable("resultbodyfinal", "");
-                SentEmail = tc.Properties["useemail"] == null ? "" : tc.Properties["useemail"].ToString().ToLower();
+                SentEmail = TestContextPropertyHelper.GetString(tc, "useemail", "").ToLowerInvariant();
             }
             catch (Exception ex)
             {
@@ -95,12 +106,22 @@ namespace STAF.CF
 
         public static void closeAllBrowser()
         {
+            if (!_killOrphanChromedrivers)
+                return;
+
             try
             {
                 var driverP = Process.GetProcesses().Where(pr => pr.ProcessName == "chromedriver");
                 foreach (var process in driverP)
                 {
-                    process.Kill();
+                    try
+                    {
+                        process.Kill();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("closeAllBrowser: " + ex.Message);
+                    }
                 }
             }
             catch (Exception ex)

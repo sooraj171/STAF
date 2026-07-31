@@ -2,7 +2,6 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
-using SeleniumExtras.WaitHelpers;
 
 namespace STAF.CF
 {
@@ -28,7 +27,7 @@ namespace STAF.CF
         {
             try
             {
-                _currElm = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ExpectedConditions.ElementExists(Expression));
+                _currElm = Driver.waitForFindElement(Expression, 10);
                 ReportResult.ReportResultPass(Driver, context, Expression.ToString(), "Element is present");
             }
             catch
@@ -51,7 +50,7 @@ namespace STAF.CF
         {
             try
             {
-                _currElmParan = new WebDriverWait(Driver, TimeSpan.FromSeconds(10)).Until(ExpectedConditions.ElementExists(Expression));
+                _currElmParan = Driver.waitForFindElement(Expression, 10);
                 ReportResult.ReportResultPass(Driver, context, strObjectDetails, "Element is present");
             }
             catch
@@ -74,7 +73,8 @@ namespace STAF.CF
         {
             try
             {
-                _currElmPara = waitforelement(parentElement, Expression);
+                var wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
+                _currElmPara = wait.Until(SeleniumWaitConditions.ElementExists(parentElement, Expression));
                 ReportResult.ReportResultPass(Driver, context, strObjectDetails, "Element is present");
             }
             catch
@@ -83,38 +83,6 @@ namespace STAF.CF
                 ReportResult.ReportResultFail(Driver, context, strObjectDetails, "Element is not present");
             }
             return _currElmPara;
-        }
-
-        private IWebElement waitforelement(IWebElement parentElement, By by)
-        {
-            int cnt = 10 * 5;
-            for (int iCnt = 0; iCnt < cnt; iCnt++)
-            {
-                System.Threading.Thread.Sleep(200);
-                if (ElementExists(parentElement, by))
-                {
-                    return parentElement.FindElement(by);
-                }
-                else
-                {
-                    return null;
-                }
-
-            }
-            return null;
-        }
-
-        private bool ElementExists(IWebElement parentElement, By by)
-        {
-            try
-            {
-                parentElement.FindElement(by);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
         }
     }
 
