@@ -43,7 +43,9 @@ namespace STAF.CF
 
             CommonAction.setCleanUpValues(currResultFile, TestContext, totTime);
 
-            if (TestRunState.IsFailed())
+            bool failed = TestRunState.IsFailed();
+            TestRunState.Clear();
+            if (failed)
             {
                 Assert.Fail();
             }

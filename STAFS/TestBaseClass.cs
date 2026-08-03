@@ -65,7 +65,9 @@ namespace STAF.CF
                 }
             }
 
-            if (TestRunState.IsFailed())
+            bool failed = TestRunState.IsFailed();
+            TestRunState.Clear();
+            if (failed)
             {
                 Assert.Fail();
             }
