@@ -19,6 +19,7 @@
 - [Features](#features)
 - [Key Components](#key-components)
 - [Getting Started](#getting-started)
+- [Dependencies](#dependencies)
 - [Configuration](#configuration)
 - [Reporting](#reporting)
 - [Parallel execution and thread safety](#parallel-execution-and-thread-safety)
@@ -126,7 +127,7 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 | **getTotalTabsCount** | Return number of open tabs |
 | **waitForFindElement** | Find element with explicit timeout (uses `SeleniumWaitConditions.ElementExists`) |
 | **SeleniumWaitConditions** | Selenium 4 wait predicates for `WebDriverWait` (replaces legacy `ExpectedConditions` / WaitHelpers) |
-| **waitForElementExist** / **waitForElementNotExist** | Wait for element presence/absence |
+| **waitForElementExist** / **waitForElementNotExist** | Wait until an element is attached to the DOM, or until it is stale/missing. Hidden elements still count as present |
 | **WaitForElementDisapper** | Wait until element is no longer present (By) |
 | **WaitForDocumentReady** | Wait for document ready and (if present) jQuery idle (default timeout 30 seconds; optional `timeoutSeconds` parameter) |
 
@@ -135,8 +136,8 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 | Class | Purpose |
 |-------|---------|
 | **ExcelDriver** | `CompareFiles`, `GetExcelWorkbook`, `GetExcelCellData`, `SetExcelCellData`, `GetExcelRowCount`, `GetExcelColumnCount` |
-| **DbHelper** | Connection strings from `AppConfig`. `OpenConnection`, `VerifyConnection`, `ExecuteQuery`, `ExecuteScalar`, `ExecuteNonQuery` |
-| **AxeAccessibility** | Deque Axe-core: `AnalyzePage()`, `AnalyzePageAndSaveHtml()`, `AnalyzeCssSelector()`, `AnalyzeElement()`, `AnalyzeWithConfigurator()` |
+| **DbHelper** | Connection strings from `AppConfig`. `OpenConnection`, `VerifyConnection`, `ExecuteQuery`, `ExecuteScalar`, `ExecuteNonQuery`, `GetDataAsList` |
+| **AxeAccessibility** | Deque Axe-core: `AnalyzePage()`, `AnalyzePageAndSaveHtml()`, `AnalyzeCssSelector()`, `AnalyzeElement()` (element must have an `id`), `AnalyzeWithConfigurator()` |
 
 ---
 
@@ -147,7 +148,22 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 - **.NET 10 SDK**
 - **Visual Studio 2022** (or later) or **VS Code** with C# extension
 - **Chrome** or **Edge** (for UI tests)
-- **MSTest** (included via package reference)
+- **MSTest** (pulled in by the package; see [Dependencies](#dependencies))
+
+### Dependencies
+
+`STAFS/STAF.csproj` currently references:
+
+| Package | Version |
+|---------|---------|
+| Selenium.WebDriver / Selenium.Support | 4.49.0 |
+| MSTest.TestFramework | 4.4.1 |
+| Microsoft.Data.SqlClient | 7.1.0 |
+| Deque.AxeCore.Selenium | 4.13.0 |
+| ClosedXML | 0.105.1 |
+| Microsoft.Extensions.Configuration.Json | 10.0.12 |
+
+A test project that pins an older **MSTest.TestFramework** or **MSTest.TestAdapter** will fail restore with a package downgrade (**NU1605**). Align both packages with **4.4.1** or later.
 
 ### Install
 
@@ -253,7 +269,7 @@ Use a **unique `filePath`** when multiple processes or tools might generate repo
 
 ## Parallel execution and thread safety
 
-- **Per-test state** (result HTML path, failure flag) uses **`AsyncLocal`** so parallel MSTest workers do not overwrite each other. The framework still mirrors **`failFlag`** and per-test path keys to **environment variables** for backward compatibility in sequential runs.
+- **Per-test state** (result HTML path, failure flag) uses **`AsyncLocal`** so parallel MSTest workers do not overwrite each other. When that per-test state is set, pass/fail for `Assert.Fail()` is taken from it, not from another worker's process-wide **`failFlag`**. The framework still mirrors **`failFlag`** and per-test path keys to **environment variables** for callers that never start a test through **`setStartUpValues`**.
 - **HTML append** uses a **lock per report file path**, not one global lock, so different tests can write their own reports concurrently.
 - **`ReportResult` / `ReportResultAPI`** resolve the report file via the active test context first, then fall back to **`Environment.GetEnvironmentVariable(TestContext.TestName)`** if you use a custom startup path.
 
@@ -270,6 +286,7 @@ When updating from older STAF.UI.API builds, check the following:
 | **Headless CI** | Prefer **`headless=true`** in runsettings rather than only custom options. |
 | **`TestReportGenerator`** | Use the public **`GenerateTestReport(string filePath, TestResultData results)`** API; avoid hard-coding a shared filename like `test_report.html` when running in parallel. |
 | **Public API** | Existing entry points (**`TestBaseClass`**, **`TestBaseAPI`**, **`CommonAction.setStartUpValues` / `setCleanUpValues`**, **`ReportResult`**, **`HtmlResult`**, parameterless **`SetChromeOptions` / `SetEdgeOptions`**) are preserved for consuming projects. |
+| **MSTest / Selenium / SqlClient** | Current references are **MSTest 4.4.1**, **Selenium 4.49**, and **Microsoft.Data.SqlClient 7.1**. Bump direct MSTest adapter and framework pins in consuming test projects together with STAF, or restore will treat the older pin as a downgrade. |
 
 ---
 

@@ -56,8 +56,10 @@ namespace STAF.CF
 
         public static bool IsFailed()
         {
-            if (Failed.Value == true)
-                return true;
+            // Prefer per-test AsyncLocal state when BeginTest has run; only fall back to the
+            // process-wide env var for legacy callers that never called BeginTest.
+            if (Failed.Value.HasValue)
+                return Failed.Value.Value;
             return string.Equals(Environment.GetEnvironmentVariable("failFlag"), "yes", StringComparison.OrdinalIgnoreCase);
         }
     }

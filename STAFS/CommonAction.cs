@@ -157,11 +157,11 @@ namespace STAF.CF
             string resultFile = "";
             try
             {
-                resultFile = Path.Combine(currTestName.TestRunDirectory, currTestName.TestName + ".html");
+                string runDir = currTestName.TestRunDirectory ?? DirectoryUtils.BaseDirectory;
+                resultFile = Path.Combine(runDir, currTestName.TestName + ".html");
                 TestRunState.BeginTest(currTestName, resultFile);
                 string StrProject = currTestName.Properties["project"] == null ? "TestSteps" : "TestSteps:" + currTestName.Properties["project"].ToString();
-                HtmlResult.TC_ResultStartTime(StrProject, currTestName.TestName, currTestName.TestRunDirectory); // Updated to use TestRunDirectory
-                // System.IO.File.Copy(DirectoryUtils.BaseDirectory + "\\ResultTemplate.html", currTestName.TestRunDirectory + @"\ResultTemplate.html"); // Updated to use TestRunDirectory
+                HtmlResult.TC_ResultStartTime(StrProject, currTestName.TestName, runDir);
             }
             catch (Exception)
             {
@@ -238,7 +238,7 @@ namespace STAF.CF
                 }
             }
 
-            TestRunState.Clear();
+            // Do not Clear() here — TestCleanup must read IsFailed() afterward for Assert.Fail().
         }
 
         public static SmtpClient SetMailServer(string StrSMTPHost, bool UseDefaultCred, int SMTPPort=0,string UserName="",string Password="")
@@ -330,7 +330,8 @@ namespace STAF.CF
                 {
                     try
                     {
-                        return elmObject.Displayed;
+                        // Presence in the DOM (hidden elements still count as existing)
+                        return elmObject.TagName != null;
                     }
                     catch (StaleElementReferenceException)
                     {
@@ -361,7 +362,7 @@ namespace STAF.CF
                 {
                     try
                     {
-                        return !elmObject.Displayed;
+                        return elmObject.TagName == null;
                     }
                     catch (StaleElementReferenceException)
                     {
