@@ -2,7 +2,7 @@
 
 > **C# Selenium** | **.NET Selenium Framework** | **MCP Server for Selenium C#** | **Selenium WebDriver C#** | **Test Automation .NET** | **UI Testing C#** | **API Testing .NET** | **MSTest Selenium**
 
-[![NuGet](https://img.shields.io/nuget/v/STAF.UI.API.svg?style=flat-square)](https://www.nuget.org/packages/STAF.UI.API)
+[![NuGet](https://img.shields.io/badge/nuget-4.4.4-blue.svg?style=flat-square)](https://www.nuget.org/packages/STAF.UI.API)
 [![.NET 10](https://img.shields.io/badge/.NET-10-blue.svg?style=flat-square)](https://dotnet.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
