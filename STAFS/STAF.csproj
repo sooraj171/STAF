@@ -13,21 +13,30 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>Selenium, Framework, API, UI Tests, API Tests, Excel</PackageTags>
-    <PackageReleaseNotes>This release targets .NET 10. Underlying projects consuming STAF.UI.API must use .NET 10 or above.
-Updates dependencies to Selenium 4.49, MSTest 4.4.1, Microsoft.Data.SqlClient 7.1.0, Deque.AxeCore.Selenium 4.13.0, and Microsoft.Extensions.Configuration.Json 10.0.12.
-Test projects that pin an older MSTest.TestFramework or MSTest.TestAdapter should move both to 4.4.1 or later.
+    <PackageReleaseNotes>STAF.UI.API 4.4.5 targets .NET 10. Projects consuming this package must use .NET 10 or above. The public API is unchanged.
+
+Dependency updates (previous → current):
+- Selenium.WebDriver and Selenium.Support 4.49.0 → 4.52.0
+- MSTest.TestFramework 4.4.1 → 4.5.2
+- Microsoft.Data.SqlClient 7.1.0 → 7.1.1
+- Deque.AxeCore.Selenium 4.13.0 → 4.14.0
+- Microsoft.Extensions.Configuration.Json 10.0.12 → 10.0.14
+- System.Security.Cryptography.Pkcs is now a direct reference at 10.0.14, replacing the vulnerable 9.0.18 build pulled in by Microsoft.Data.SqlClient (GHSA-846f-f764-76mx, GHSA-2fmv-rv2c-59x7)
+- ClosedXML remains 0.105.1 (already the latest stable release)
+
+Test projects that pin MSTest.TestFramework or MSTest.TestAdapter must move both to 4.5.2 or later. An older pin fails restore with NU1605.
+
 UI and API test framework for Selenium.
-Supports Chrome, Edge &amp; Remote Drivers.
-Supports Parallel execution and is thread safe.
-Click the repository link to setup and get started quickly with a sample project.
-https://github.com/sooraj171/STAF.Selenium.Tests
+Supports Chrome, Edge, and remote drivers.
+Supports parallel execution and is thread safe.
+Sample project and MCP server: https://github.com/sooraj171/STAF.Selenium.Tests
     </PackageReleaseNotes>
     <RepositoryUrl>https://github.com/sooraj171/STAF.Selenium.Tests</RepositoryUrl>
     <PackageIcon>staf.png</PackageIcon>
     <PackageIconUrl />
-    <Version>4.4.4</Version>
-    <AssemblyVersion>4.4.4.0</AssemblyVersion>
-    <FileVersion>4.4.4.0</FileVersion>
+    <Version>4.4.5</Version>
+    <AssemblyVersion>4.4.5.0</AssemblyVersion>
+    <FileVersion>4.4.5.0</FileVersion>
     <RepositoryType />
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -57,12 +66,13 @@ https://github.com/sooraj171/STAF.Selenium.Tests
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.1" />
-    <PackageReference Include="Deque.AxeCore.Selenium" Version="4.13.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
-    <PackageReference Include="MSTest.TestFramework" Version="4.4.1" />
-    <PackageReference Include="Selenium.Support" Version="4.49.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.49.0" />
+    <PackageReference Include="Deque.AxeCore.Selenium" Version="4.14.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.14" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.5.2" />
+    <PackageReference Include="Selenium.Support" Version="4.52.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.52.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
   <ItemGroup>
