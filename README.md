@@ -2,18 +2,37 @@
 
 > **C# Selenium** | **.NET Selenium Framework** | **MCP Server for Selenium C#** | **Selenium WebDriver C#** | **Test Automation .NET** | **UI Testing C#** | **API Testing .NET** | **MSTest Selenium**
 
-[![NuGet](https://img.shields.io/nuget/v/STAF.UI.API.svg?style=flat-square)](https://www.nuget.org/packages/STAF.UI.API)
+[![NuGet 4.4.5](https://img.shields.io/badge/NuGet-4.4.5-blue?style=flat-square&logo=nuget)](https://www.nuget.org/packages/STAF.UI.API)
 [![.NET 10](https://img.shields.io/badge/.NET-10-blue.svg?style=flat-square)](https://dotnet.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
 **STAF** is a production-ready .NET test automation framework for Selenium-based UI testing, API testing, and Excel validation. It provides base classes, HTML reporting, parallel execution, and optional database and accessibility support. The framework is distributed as the **STAF.UI.API** NuGet package and targets **.NET 10** with **MSTest**.
 
-> **Note:** Current package version is **STAF.UI.API 4.4.4**. This release targets .NET 10. Projects consuming STAF.UI.API must use **.NET 10 or above**.
+> **Note:** Current package version is **STAF.UI.API 4.4.5**. This release targets .NET 10. Projects consuming STAF.UI.API must use **.NET 10 or above**.
+
+### Release 4.4.5
+
+Dependency refresh only. The public API (`TestBaseClass`, `TestBaseAPI`, `PageBaseClass`, `BrowserDriver`, `ReportResult`, `ExcelDriver`, `DbHelper`, `AxeAccessibility`) is unchanged, and the package still targets **.NET 10**.
+
+| Package | 4.4.4 | 4.4.5 |
+|---------|-------|-------|
+| Selenium.WebDriver / Selenium.Support | 4.49.0 | **4.52.0** |
+| MSTest.TestFramework | 4.4.1 | **4.5.2** |
+| Microsoft.Data.SqlClient | 7.1.0 | **7.1.1** |
+| Deque.AxeCore.Selenium | 4.13.0 | **4.14.0** |
+| Microsoft.Extensions.Configuration.Json | 10.0.12 | **10.0.14** |
+| System.Security.Cryptography.Pkcs | 9.0.18 (transitive) | **10.0.14** (direct) |
+| ClosedXML | 0.105.1 | 0.105.1 (already current) |
+
+`Microsoft.Data.SqlClient` 7.1.1 still brings `System.Security.Cryptography.Pkcs` 9.0.18, which is affected by [GHSA-846f-f764-76mx](https://github.com/advisories/GHSA-846f-f764-76mx) and [GHSA-2fmv-rv2c-59x7](https://github.com/advisories/GHSA-2fmv-rv2c-59x7). **4.4.5** references **10.0.14** directly so restore uses the patched build.
+
+Consuming test projects that pin **MSTest.TestFramework** or **MSTest.TestAdapter** must move **both** packages to **4.5.2** or later. Restore treats an older pin as a downgrade (**NU1605**). Preview releases (SqlClient 8.x, Extensions 11.x) are not referenced; this package stays on the latest stable builds that match .NET 10.
 
 ---
 
 ## Table of Contents
 
+- [Release 4.4.5](#release-445)
 - [AI-assisted development and MCP (implementation repo)](#ai-assisted-development-and-mcp-implementation-repo)
 - [Overview](#overview)
 - [Features](#features)
@@ -152,18 +171,20 @@ STAF streamlines automated testing for web applications and APIs using Selenium 
 
 ### Dependencies
 
-**STAF.UI.API 4.4.4** (`STAFS/STAF.csproj`) currently references:
+**STAF.UI.API 4.4.5** (`STAFS/STAF.csproj`) currently references:
 
-| Package | Version |
-|---------|---------|
-| Selenium.WebDriver / Selenium.Support | 4.49.0 |
-| MSTest.TestFramework | 4.4.1 |
-| Microsoft.Data.SqlClient | 7.1.0 |
-| Deque.AxeCore.Selenium | 4.13.0 |
-| ClosedXML | 0.105.1 |
-| Microsoft.Extensions.Configuration.Json | 10.0.12 |
+| Package | Version | Role |
+|---------|---------|------|
+| Selenium.WebDriver | 4.52.0 | Browser automation |
+| Selenium.Support | 4.52.0 | Waits and support types |
+| MSTest.TestFramework | 4.5.2 | Test lifecycle and assertions |
+| Microsoft.Data.SqlClient | 7.1.1 | SQL Server access (`DbHelper`) |
+| Deque.AxeCore.Selenium | 4.14.0 | Accessibility scans |
+| ClosedXML | 0.105.1 | Excel read, write, and compare |
+| Microsoft.Extensions.Configuration.Json | 10.0.14 | `appsettings.json` |
+| System.Security.Cryptography.Pkcs | 10.0.14 | Patched PKCS build (overrides SqlClient’s 9.0.18) |
 
-A test project that pins an older **MSTest.TestFramework** or **MSTest.TestAdapter** will fail restore with a package downgrade (**NU1605**). Align both packages with **4.4.1** or later.
+A test project that pins an older **MSTest.TestFramework** or **MSTest.TestAdapter** will fail restore with a package downgrade (**NU1605**). Align both packages with **4.5.2** or later. The local `STAF.Tests` project uses **MSTest 4.5.2** and **Microsoft.NET.Test.Sdk 18.11.0**.
 
 ### Install
 
@@ -286,7 +307,7 @@ When updating from older STAF.UI.API builds, check the following:
 | **Headless CI** | Prefer **`headless=true`** in runsettings rather than only custom options. |
 | **`TestReportGenerator`** | Use the public **`GenerateTestReport(string filePath, TestResultData results)`** API; avoid hard-coding a shared filename like `test_report.html` when running in parallel. |
 | **Public API** | Existing entry points (**`TestBaseClass`**, **`TestBaseAPI`**, **`CommonAction.setStartUpValues` / `setCleanUpValues`**, **`ReportResult`**, **`HtmlResult`**, parameterless **`SetChromeOptions` / `SetEdgeOptions`**) are preserved for consuming projects. |
-| **MSTest / Selenium / SqlClient** | Current references are **MSTest 4.4.1**, **Selenium 4.49**, and **Microsoft.Data.SqlClient 7.1**. Bump direct MSTest adapter and framework pins in consuming test projects together with STAF, or restore will treat the older pin as a downgrade. |
+| **MSTest / Selenium / SqlClient** | **4.4.5** references **MSTest 4.5.2**, **Selenium 4.52.0**, **Microsoft.Data.SqlClient 7.1.1**, **Deque.AxeCore.Selenium 4.14.0**, **Microsoft.Extensions.Configuration.Json 10.0.14**, and **System.Security.Cryptography.Pkcs 10.0.14**. Bump direct MSTest adapter and framework pins in consuming test projects together with STAF, or restore will treat the older pin as a downgrade. |
 
 ---
 
